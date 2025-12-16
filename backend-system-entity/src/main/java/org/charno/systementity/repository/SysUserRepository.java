@@ -1,6 +1,6 @@
-package org.charno.system.repository;
+package org.charno.systementity.repository;
 
-import org.charno.system.entity.SysUser;
+import org.charno.systementity.entity.SysUser;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.data.repository.reactive.ReactiveSortingRepository;
 

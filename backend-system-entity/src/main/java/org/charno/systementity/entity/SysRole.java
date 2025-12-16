@@ -1,4 +1,4 @@
-package org.charno.system.entity;
+package org.charno.systementity.entity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -42,3 +42,4 @@ public class SysRole {
      */
     private OffsetDateTime createdAt;
 }
+

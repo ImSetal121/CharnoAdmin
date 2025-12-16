@@ -7,10 +7,10 @@
         <artifactId>backend</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>backend-common-security</artifactId>
+    <artifactId>backend-common-redis</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>backend-common-security</name>
-    <description>backend-common-security</description>
+    <name>backend-common-redis</name>
+    <description>backend-common-redis</description>
     <url/>
     <licenses>
         <license/>
@@ -30,26 +30,25 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Redis 响应式依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
         </dependency>
+
+        <!-- Jackson 依赖，用于 JSON 序列化/反序列化 -->
         <dependency>
-            <groupId>org.charno</groupId>
-            <artifactId>backend-common-web</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.charno</groupId>
-            <artifactId>backend-system-entity</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
 

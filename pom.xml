@@ -70,13 +70,25 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns-native-macos</artifactId>
+            <classifier>osx-aarch_64</classifier>
+        </dependency>
+        <!-- Jackson 依赖，用于 JSON 序列化/反序列化 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
     </dependencies>
 
     <modules>
         <module>backend-start</module>
+        <module>backend-common-redis</module>
         <module>backend-common-web</module>
         <module>backend-common-security</module>
         <module>backend-system</module>
+        <module>backend-system-entity</module>
     </modules>
 
 </project>

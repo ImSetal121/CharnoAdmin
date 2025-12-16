@@ -1,29 +1,24 @@
 package org.charno.system.service;
 
-import org.charno.system.entity.SysUser;
-import org.charno.system.repository.SysUserRepository;
+import org.charno.systementity.entity.SysUser;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 /**
- * 系统用户业务服务
+ * 系统用户管理业务服务
+ * 面向管理的业务服务，提供条件查询功能
  */
 @Service
-public class SysUserService {
+public class AdminSysUserService {
 
     private final R2dbcEntityTemplate template;
-    private final SysUserRepository userRepository;
 
-    public SysUserService(R2dbcEntityTemplate template, SysUserRepository userRepository) {
+    public AdminSysUserService(R2dbcEntityTemplate template) {
         this.template = template;
-        this.userRepository = userRepository;
     }
 
     // ==================== 条件查询 ====================
@@ -94,16 +89,5 @@ public class SysUserService {
 
         return criteria;
     }
-
-    // ==================== 业务逻辑 ====================
-
-    // TODO: 用户注册业务逻辑
-    // TODO: 用户登录业务逻辑
-    // TODO: 用户密码修改业务逻辑
-    // TODO: 用户信息更新业务逻辑
-    // TODO: 用户状态变更业务逻辑
-    // TODO: 用户软删除业务逻辑
-    // TODO: 用户权限验证业务逻辑
-
 }
 

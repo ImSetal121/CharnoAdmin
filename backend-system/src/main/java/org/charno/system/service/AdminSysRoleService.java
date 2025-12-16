@@ -1,7 +1,6 @@
 package org.charno.system.service;
 
-import org.charno.system.entity.SysRole;
-import org.charno.system.repository.SysRoleRepository;
+import org.charno.systementity.entity.SysRole;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
@@ -10,17 +9,16 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 /**
- * 系统角色业务服务
+ * 系统角色管理业务服务
+ * 面向管理的业务服务，提供条件查询功能
  */
 @Service
-public class SysRoleService {
+public class AdminSysRoleService {
 
     private final R2dbcEntityTemplate template;
-    private final SysRoleRepository roleRepository;
 
-    public SysRoleService(R2dbcEntityTemplate template, SysRoleRepository roleRepository) {
+    public AdminSysRoleService(R2dbcEntityTemplate template) {
         this.template = template;
-        this.roleRepository = roleRepository;
     }
 
     // ==================== 条件查询 ====================
@@ -70,14 +68,5 @@ public class SysRoleService {
 
         return criteria;
     }
-
-    // ==================== 业务逻辑 ====================
-
-    // TODO: 角色创建业务逻辑
-    // TODO: 角色更新业务逻辑
-    // TODO: 角色删除业务逻辑
-    // TODO: 角色权限分配业务逻辑
-    // TODO: 角色权限验证业务逻辑
-
 }
 

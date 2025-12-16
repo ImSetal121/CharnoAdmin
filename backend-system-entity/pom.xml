@@ -7,10 +7,11 @@
         <artifactId>backend</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <artifactId>backend-common-security</artifactId>
+    <groupId>org.charno</groupId>
+    <artifactId>backend-system-entity</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>backend-common-security</name>
-    <description>backend-common-security</description>
+    <name>backend-system-entity</name>
+    <description>backend-system-entity</description>
     <url/>
     <licenses>
         <license/>
@@ -30,27 +31,34 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
+        
         <dependency>
-            <groupId>org.charno</groupId>
-            <artifactId>backend-common-web</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
         </dependency>
+        
         <dependency>
-            <groupId>org.charno</groupId>
-            <artifactId>backend-system-entity</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

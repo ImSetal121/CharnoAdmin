@@ -1,9 +1,9 @@
 package org.charno.system.controller;
 
 import org.charno.commonweb.response.ApiResponse;
-import org.charno.system.entity.SysRole;
-import org.charno.system.repository.SysRoleRepository;
-import org.charno.system.service.SysRoleService;
+import org.charno.systementity.entity.SysRole;
+import org.charno.systementity.repository.SysRoleRepository;
+import org.charno.system.service.AdminSysRoleService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,11 +20,11 @@ import java.util.List;
 @RequestMapping("/api/admin/roles")
 public class AdminSysRoleController {
 
-    private final SysRoleService roleService;
+    private final AdminSysRoleService adminRoleService;
     private final SysRoleRepository roleRepository;
 
-    public AdminSysRoleController(SysRoleService roleService, SysRoleRepository roleRepository) {
-        this.roleService = roleService;
+    public AdminSysRoleController(AdminSysRoleService adminRoleService, SysRoleRepository roleRepository) {
+        this.adminRoleService = adminRoleService;
         this.roleRepository = roleRepository;
     }
 
@@ -98,7 +98,7 @@ public class AdminSysRoleController {
     public Mono<ApiResponse<List<SysRole>>> query(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name) {
-        return roleService.query(code, name)
+        return adminRoleService.query(code, name)
             .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("查询角色失败：" + e.getMessage())));
@@ -124,7 +124,7 @@ public class AdminSysRoleController {
         
         Pageable pageable = buildPageable(page, size, sort);
         
-        return roleService.queryWithPage(code, name, pageable)
+        return adminRoleService.queryWithPage(code, name, pageable)
             .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("分页查询角色失败：" + e.getMessage())));

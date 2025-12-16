@@ -1,14 +1,13 @@
 package org.charno.system.controller;
 
 import org.charno.commonweb.response.ApiResponse;
-import org.charno.system.entity.SysUser;
-import org.charno.system.repository.SysUserRepository;
-import org.charno.system.service.SysUserService;
+import org.charno.systementity.entity.SysUser;
+import org.charno.systementity.repository.SysUserRepository;
+import org.charno.system.service.AdminSysUserService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -22,11 +21,11 @@ import java.util.UUID;
 @RequestMapping("/api/admin/users")
 public class AdminSysUserController {
 
-    private final SysUserService userService;
+    private final AdminSysUserService adminUserService;
     private final SysUserRepository userRepository;
 
-    public AdminSysUserController(SysUserService userService, SysUserRepository userRepository) {
-        this.userService = userService;
+    public AdminSysUserController(AdminSysUserService adminUserService, SysUserRepository userRepository) {
+        this.adminUserService = adminUserService;
         this.userRepository = userRepository;
     }
 
@@ -106,7 +105,7 @@ public class AdminSysUserController {
             @RequestParam(required = false) String accountType,
             @RequestParam(required = false) String accountIdentifier,
             @RequestParam(required = false) String nickname) {
-        return userService.query(status, roleId, accountType, accountIdentifier, nickname)
+        return adminUserService.query(status, roleId, accountType, accountIdentifier, nickname)
             .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("查询用户失败：" + e.getMessage())));
@@ -138,7 +137,7 @@ public class AdminSysUserController {
         
         Pageable pageable = buildPageable(page, size, sort);
         
-        return userService.queryWithPage(status, roleId, accountType, accountIdentifier, nickname, pageable)
+        return adminUserService.queryWithPage(status, roleId, accountType, accountIdentifier, nickname, pageable)
             .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("分页查询用户失败：" + e.getMessage())));
