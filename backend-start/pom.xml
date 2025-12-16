@@ -41,6 +41,17 @@
 
         <dependency>
             <groupId>org.charno</groupId>
+            <artifactId>backend-common-web</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.charno</groupId>
+            <artifactId>backend-common-security</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.charno</groupId>
             <artifactId>backend-system</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
