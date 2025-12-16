@@ -17,14 +17,9 @@ import java.time.OffsetDateTime;
 public class SysRole {
     
     /**
-     * 主键 ID
+     * 角色代码（主键，唯一标识）
      */
     @Id
-    private Long id;
-
-    /**
-     * 角色代码（唯一标识）
-     */
     private String code;
 
     /**

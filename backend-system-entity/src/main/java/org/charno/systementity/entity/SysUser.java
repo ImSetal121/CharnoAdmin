@@ -1,11 +1,9 @@
 package org.charno.systementity.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
-import org.springframework.data.jdbc.core.mapping.AggregateReference;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -35,31 +33,10 @@ public class SysUser {
     private String status;
 
     /**
-     * 用户角色ID，关联 sys_role 表
+     * 用户角色代码，关联 sys_role 表的 code 字段
      */
-    @Column("role_id")
-    @JsonIgnore // 忽略AggregateReference，使用roleId字段进行序列化
-    private AggregateReference<SysRole, Long> role;
-
-    /**
-     * 获取角色ID（用于JSON序列化）
-     * 当role不为null时返回角色ID，否则返回null
-     */
-    public Long getRoleId() {
-        return role != null ? role.getId() : null;
-    }
-
-    /**
-     * 设置角色ID（用于JSON反序列化）
-     * 根据角色ID创建AggregateReference
-     */
-    public void setRoleId(Long roleId) {
-        if (roleId != null) {
-            this.role = AggregateReference.to(roleId);
-        } else {
-            this.role = null;
-        }
-    }
+    @Column("role_code")
+    private String roleCode;
 
     /**
      * 账号类型（如 EMAIL / PHONE / USERNAME / WECHAT）

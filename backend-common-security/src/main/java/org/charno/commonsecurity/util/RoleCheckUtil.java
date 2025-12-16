@@ -24,7 +24,7 @@ public class RoleCheckUtil {
      * @return Mono<HandlerMethod>，如果无法获取则返回空
      */
     public static Mono<HandlerMethod> getHandlerMethod(ServerWebExchange exchange) {
-        Object handler = exchange.getAttribute(HandlerMapping.HANDLER_ATTRIBUTE);
+        Object handler = exchange.getAttribute(HandlerMapping.BEST_MATCHING_HANDLER_ATTRIBUTE);
         if (handler instanceof HandlerMethod) {
             return Mono.just((HandlerMethod) handler);
         }

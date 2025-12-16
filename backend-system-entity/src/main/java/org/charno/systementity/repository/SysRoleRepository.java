@@ -10,7 +10,7 @@ import org.springframework.data.repository.reactive.ReactiveSortingRepository;
  * 
  * 规范参考：prompt/持久层规范.md
  */
-public interface SysRoleRepository extends ReactiveCrudRepository<SysRole, Long>,
-                                         ReactiveSortingRepository<SysRole, Long> {
+public interface SysRoleRepository extends ReactiveCrudRepository<SysRole, String>,
+                                         ReactiveSortingRepository<SysRole, String> {
 }
 

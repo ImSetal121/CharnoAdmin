@@ -46,14 +46,14 @@ public class AdminSysRoleController {
     }
 
     /**
-     * 根据ID查询角色
+     * 根据代码查询角色
      * 
-     * @param id 角色ID
+     * @param code 角色代码
      * @return 响应结果
      */
-    @GetMapping("/{id}")
-    public Mono<ApiResponse<SysRole>> getById(@PathVariable Long id) {
-        return roleRepository.findById(id)
+    @GetMapping("/{code}")
+    public Mono<ApiResponse<SysRole>> getByCode(@PathVariable String code) {
+        return roleRepository.findById(code)
             .map(ApiResponse::success)
             .switchIfEmpty(Mono.just(ApiResponse.fail("角色不存在")))
             .onErrorResume(e -> Mono.just(ApiResponse.fail("查询角色失败：" + e.getMessage())));
@@ -62,13 +62,13 @@ public class AdminSysRoleController {
     /**
      * 更新角色
      * 
-     * @param id 角色ID
+     * @param code 角色代码
      * @param role 角色实体
      * @return 响应结果
      */
-    @PutMapping("/{id}")
-    public Mono<ApiResponse<SysRole>> update(@PathVariable Long id, @RequestBody SysRole role) {
-        role.setId(id);
+    @PutMapping("/{code}")
+    public Mono<ApiResponse<SysRole>> update(@PathVariable String code, @RequestBody SysRole role) {
+        role.setCode(code);
         return roleRepository.save(role)
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("更新角色失败：" + e.getMessage())));
@@ -77,12 +77,12 @@ public class AdminSysRoleController {
     /**
      * 删除角色
      * 
-     * @param id 角色ID
+     * @param code 角色代码
      * @return 响应结果
      */
-    @DeleteMapping("/{id}")
-    public Mono<ApiResponse<Void>> delete(@PathVariable Long id) {
-        return roleRepository.deleteById(id)
+    @DeleteMapping("/{code}")
+    public Mono<ApiResponse<Void>> delete(@PathVariable String code) {
+        return roleRepository.deleteById(code)
             .then(Mono.just(ApiResponse.<Void>success()))
             .onErrorResume(e -> Mono.just(ApiResponse.<Void>fail("删除角色失败：" + e.getMessage())));
     }

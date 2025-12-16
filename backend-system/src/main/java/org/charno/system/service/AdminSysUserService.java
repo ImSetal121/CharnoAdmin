@@ -27,15 +27,15 @@ public class AdminSysUserService {
      * 不分页条件查询用户
      * 
      * @param status 用户状态（可选）
-     * @param roleId 角色ID（可选）
+     * @param roleCode 角色代码（可选）
      * @param accountType 账号类型（可选）
      * @param accountIdentifier 账号标识符（可选，支持模糊查询）
      * @param nickname 昵称（可选，支持模糊查询）
      * @return Flux<SysUser> 用户列表
      */
-    public Flux<SysUser> query(String status, Long roleId, String accountType, 
+    public Flux<SysUser> query(String status, String roleCode, String accountType, 
                                String accountIdentifier, String nickname) {
-        Criteria criteria = buildCriteria(status, roleId, accountType, accountIdentifier, nickname);
+        Criteria criteria = buildCriteria(status, roleCode, accountType, accountIdentifier, nickname);
         return template.select(SysUser.class)
             .matching(Query.query(criteria))
             .all();
@@ -45,16 +45,16 @@ public class AdminSysUserService {
      * 分页条件查询用户
      * 
      * @param status 用户状态（可选）
-     * @param roleId 角色ID（可选）
+     * @param roleCode 角色代码（可选）
      * @param accountType 账号类型（可选）
      * @param accountIdentifier 账号标识符（可选，支持模糊查询）
      * @param nickname 昵称（可选，支持模糊查询）
      * @param pageable 分页参数
      * @return Flux<SysUser> 用户列表
      */
-    public Flux<SysUser> queryWithPage(String status, Long roleId, String accountType,
+    public Flux<SysUser> queryWithPage(String status, String roleCode, String accountType,
                                        String accountIdentifier, String nickname, Pageable pageable) {
-        Criteria criteria = buildCriteria(status, roleId, accountType, accountIdentifier, nickname);
+        Criteria criteria = buildCriteria(status, roleCode, accountType, accountIdentifier, nickname);
         return template.select(SysUser.class)
             .matching(Query.query(criteria).with(pageable))
             .all();
@@ -63,7 +63,7 @@ public class AdminSysUserService {
     /**
      * 构建查询条件
      */
-    private Criteria buildCriteria(String status, Long roleId, String accountType,
+    private Criteria buildCriteria(String status, String roleCode, String accountType,
                                    String accountIdentifier, String nickname) {
         Criteria criteria = Criteria.empty();
 
@@ -71,8 +71,8 @@ public class AdminSysUserService {
             criteria = criteria.and(Criteria.where("status").is(status));
         }
 
-        if (roleId != null) {
-            criteria = criteria.and(Criteria.where("role_id").is(roleId));
+        if (roleCode != null && !roleCode.isEmpty()) {
+            criteria = criteria.and(Criteria.where("role_code").is(roleCode));
         }
 
         if (accountType != null && !accountType.isEmpty()) {

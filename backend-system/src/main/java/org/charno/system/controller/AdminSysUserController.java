@@ -94,7 +94,7 @@ public class AdminSysUserController {
      * 不分页条件查询用户
      * 
      * @param status 用户状态（可选）
-     * @param roleId 角色ID（可选）
+     * @param roleCode 角色代码（可选）
      * @param accountType 账号类型（可选）
      * @param accountIdentifier 账号标识符（可选，支持模糊查询）
      * @param nickname 昵称（可选，支持模糊查询）
@@ -103,11 +103,11 @@ public class AdminSysUserController {
     @GetMapping("/query")
     public Mono<ApiResponse<List<SysUser>>> query(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long roleId,
+            @RequestParam(required = false) String roleCode,
             @RequestParam(required = false) String accountType,
             @RequestParam(required = false) String accountIdentifier,
             @RequestParam(required = false) String nickname) {
-        return adminUserService.query(status, roleId, accountType, accountIdentifier, nickname)
+        return adminUserService.query(status, roleCode, accountType, accountIdentifier, nickname)
             .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("查询用户失败：" + e.getMessage())));
@@ -117,7 +117,7 @@ public class AdminSysUserController {
      * 分页条件查询用户
      * 
      * @param status 用户状态（可选）
-     * @param roleId 角色ID（可选）
+     * @param roleCode 角色代码（可选）
      * @param accountType 账号类型（可选）
      * @param accountIdentifier 账号标识符（可选，支持模糊查询）
      * @param nickname 昵称（可选，支持模糊查询）
@@ -129,7 +129,7 @@ public class AdminSysUserController {
     @GetMapping("/query/page")
     public Mono<ApiResponse<List<SysUser>>> queryWithPage(
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long roleId,
+            @RequestParam(required = false) String roleCode,
             @RequestParam(required = false) String accountType,
             @RequestParam(required = false) String accountIdentifier,
             @RequestParam(required = false) String nickname,
@@ -139,7 +139,7 @@ public class AdminSysUserController {
         
         Pageable pageable = buildPageable(page, size, sort);
         
-        return adminUserService.queryWithPage(status, roleId, accountType, accountIdentifier, nickname, pageable)
+        return adminUserService.queryWithPage(status, roleCode, accountType, accountIdentifier, nickname, pageable)
             .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("分页查询用户失败：" + e.getMessage())));

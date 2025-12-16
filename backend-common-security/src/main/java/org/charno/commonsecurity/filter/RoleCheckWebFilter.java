@@ -3,16 +3,12 @@ package org.charno.commonsecurity.filter;
 import org.charno.commonsecurity.annotation.RequiresRole;
 import org.charno.commonsecurity.util.RoleCheckUtil;
 import org.charno.commonweb.response.ApiResponse;
-import org.charno.systementity.entity.SysRole;
-import org.charno.systementity.repository.SysRoleRepository;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -29,22 +25,15 @@ import java.nio.charset.StandardCharsets;
  * 工作流程：
  * 1. 检查请求对应的Controller方法是否有@RequiresRole注解
  * 2. 如果没有注解，直接放行
- * 3. 如果有注解，从请求头获取X-User-Role-Id
- * 4. 根据roleId查询角色信息
- * 5. 校验用户的角色code是否匹配注解中要求的角色
- * 6. 如果匹配，放行；如果不匹配，返回403 Forbidden
+ * 3. 如果有注解，从请求头获取X-User-Role-Code
+ * 4. 直接使用roleCode校验是否匹配注解中要求的角色
+ * 5. 如果匹配，放行；如果不匹配，返回403 Forbidden
  */
 @Component
 @Order(0) // 在HandlerMapping之后执行，以便获取HandlerMethod
 public class RoleCheckWebFilter implements WebFilter {
 
-    private static final String USER_ROLE_ID_HEADER = "X-User-Role-Id";
-
-    private final SysRoleRepository roleRepository;
-
-    public RoleCheckWebFilter(SysRoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
+    private static final String USER_ROLE_CODE_HEADER = "X-User-Role-Code";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -65,32 +54,20 @@ public class RoleCheckWebFilter implements WebFilter {
                         return chain.filter(exchange);
                     }
 
-                    // 从请求头获取roleId
-                    String roleIdStr = exchange.getRequest().getHeaders().getFirst(USER_ROLE_ID_HEADER);
-                    if (roleIdStr == null || roleIdStr.isEmpty()) {
-                        // 没有roleId，返回403（用户可能未认证，但由Spring Security处理401）
+                    // 从请求头获取roleCode
+                    String roleCode = exchange.getRequest().getHeaders().getFirst(USER_ROLE_CODE_HEADER);
+                    if (roleCode == null || roleCode.isEmpty()) {
+                        // 没有roleCode，返回403（用户可能未认证，但由Spring Security处理401）
                         // 这里返回403是因为方法需要角色权限，但用户没有角色信息
                         return handleForbidden(exchange);
                     }
 
-                    try {
-                        Long roleId = Long.parseLong(roleIdStr);
-                        
-                        // 查询角色信息
-                        return roleRepository.findById(roleId)
-                                .flatMap(role -> {
-                                    // 校验角色code是否匹配
-                                    if (RoleCheckUtil.isRoleMatched(role.getCode(), requiredRoles)) {
-                                        // 角色匹配，放行
-                                        return chain.filter(exchange);
-                                    } else {
-                                        // 角色不匹配，返回403
-                                        return handleForbidden(exchange);
-                                    }
-                                })
-                                .switchIfEmpty(handleForbidden(exchange)); // 角色不存在，返回403
-                    } catch (NumberFormatException e) {
-                        // roleId格式错误，返回403
+                    // 直接校验角色code是否匹配
+                    if (RoleCheckUtil.isRoleMatched(roleCode, requiredRoles)) {
+                        // 角色匹配，放行
+                        return chain.filter(exchange);
+                    } else {
+                        // 角色不匹配，返回403
                         return handleForbidden(exchange);
                     }
                 })

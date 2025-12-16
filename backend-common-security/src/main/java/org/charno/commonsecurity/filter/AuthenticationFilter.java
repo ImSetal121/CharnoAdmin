@@ -35,7 +35,7 @@ public class AuthenticationFilter implements WebFilter {
     private static final String USER_STATUS_HEADER = "X-User-Status";
     private static final String USER_ACCOUNT_TYPE_HEADER = "X-User-Account-Type";
     private static final String USER_ACCOUNT_IDENTIFIER_HEADER = "X-User-Account-Identifier";
-    private static final String USER_ROLE_ID_HEADER = "X-User-Role-Id";
+    private static final String USER_ROLE_CODE_HEADER = "X-User-Role-Code";
 
     private final TokenUtil tokenUtil;
 
@@ -101,7 +101,7 @@ public class AuthenticationFilter implements WebFilter {
      * - X-User-Status: 用户状态
      * - X-User-Account-Type: 账号类型
      * - X-User-Account-Identifier: 账号标识符
-     * - X-User-Role-Id: 角色ID
+     * - X-User-Role-Code: 角色代码
      */
     private ServerHttpRequest addUserInfoToHeaders(ServerHttpRequest request, SysUser user) {
         return request.mutate()
@@ -109,7 +109,7 @@ public class AuthenticationFilter implements WebFilter {
                 .header(USER_STATUS_HEADER, user.getStatus() != null ? user.getStatus() : "")
                 .header(USER_ACCOUNT_TYPE_HEADER, user.getAccountType() != null ? user.getAccountType() : "")
                 .header(USER_ACCOUNT_IDENTIFIER_HEADER, user.getAccountIdentifier() != null ? user.getAccountIdentifier() : "")
-                .header(USER_ROLE_ID_HEADER, user.getRoleId() != null ? user.getRoleId().toString() : "")
+                .header(USER_ROLE_CODE_HEADER, user.getRoleCode() != null ? user.getRoleCode() : "")
                 .build();
     }
 }
