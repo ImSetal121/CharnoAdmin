@@ -13,6 +13,7 @@ const { Content } = Layout;
 export default function MainLayout() {
   const navigate = useNavigate();
   const [theme, setTheme] = useState<'light' | 'dark'>(getTheme());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // 监听主题变化
   useEffect(() => {
@@ -46,9 +47,13 @@ export default function MainLayout() {
   return (
     <ConfigProvider>
       <Layout className="layout-container">
-        <Header onThemeChange={() => setTheme(getTheme())} />
+        <Header 
+          onThemeChange={() => setTheme(getTheme())}
+          sidebarCollapsed={sidebarCollapsed}
+          onSidebarCollapseChange={setSidebarCollapsed}
+        />
         <Layout>
-          <Sidebar />
+          <Sidebar collapsed={sidebarCollapsed} />
           <Layout className="layout-content-wrapper">
             <Content className="layout-content">
               <Outlet />

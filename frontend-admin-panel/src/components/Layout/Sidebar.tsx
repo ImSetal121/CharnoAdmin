@@ -27,7 +27,11 @@ const menuConfig = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  collapsed?: boolean;
+}
+
+export default function Sidebar({ collapsed = false }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -63,28 +67,33 @@ export default function Sidebar() {
   };
 
   return (
-    <Sider className="layout-sider" width={220}>
+    <Sider 
+      className="layout-sider" 
+      width={collapsed ? 60 : 220}
+      collapsed={collapsed}
+      collapsible
+    >
       <Menu
         defaultOpenKeys={getDefaultOpenKeys()}
         defaultSelectedKeys={getDefaultSelectedKeys()}
         onClickMenuItem={handleMenuClick}
-        hasCollapseButton
+        collapse={collapsed}
         style={{ width: '100%', height: '100%' }}
       >
         {menuConfig.map((menu) => (
           <SubMenu
             key={menu.key}
             title={
-              <>
+              <span>
                 {menu.icon}
-                {menu.title}
-              </>
+                <span>{menu.title}</span>
+              </span>
             }
           >
             {menu.children.map((child) => (
               <MenuItem key={child.key}>
                 {child.icon}
-                {child.title}
+                <span>{child.title}</span>
               </MenuItem>
             ))}
           </SubMenu>

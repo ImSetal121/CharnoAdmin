@@ -55,6 +55,11 @@
   margin-bottom: 0;
 }
 
+/* 密码输入框宽度调整 */
+.login-form .arco-input-group {
+  width: 340px;
+}
+
 /* 响应式设计 */
 @media (max-width: 480px) {
   .login-card {

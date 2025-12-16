@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, Button, Dropdown, Avatar, Space, Menu } from '@arco-design/web-react';
-import { IconMoon, IconSun, IconFullscreen, IconFullscreenExit, IconUser, IconPoweroff } from '@arco-design/web-react/icon';
+import { IconMoon, IconSun, IconFullscreen, IconFullscreenExit, IconUser, IconPoweroff, IconMenuFold, IconMenuUnfold } from '@arco-design/web-react/icon';
 import { toggleTheme, getTheme } from '@/utils/theme';
 import { toggleFullscreen, isFullscreen, onFullscreenChange } from '@/utils/fullscreen';
 import { getUserInfo, clearUserInfo } from '@/utils/user';
@@ -12,9 +12,11 @@ const { Header: ArcoHeader } = Layout;
 
 interface HeaderProps {
   onThemeChange?: () => void;
+  sidebarCollapsed?: boolean;
+  onSidebarCollapseChange?: (collapsed: boolean) => void;
 }
 
-export default function Header({ onThemeChange }: HeaderProps) {
+export default function Header({ onThemeChange, sidebarCollapsed = false, onSidebarCollapseChange }: HeaderProps) {
   const navigate = useNavigate();
   const [theme, setTheme] = useState<'light' | 'dark'>(getTheme());
   const [fullscreen, setFullscreen] = useState(isFullscreen());
@@ -46,6 +48,13 @@ export default function Header({ onThemeChange }: HeaderProps) {
       await toggleFullscreen();
     } catch (error) {
       console.error('全屏切换失败:', error);
+    }
+  };
+
+  // 处理侧边栏收缩切换
+  const handleSidebarCollapseToggle = () => {
+    if (onSidebarCollapseChange) {
+      onSidebarCollapseChange(!sidebarCollapsed);
     }
   };
 
@@ -81,6 +90,12 @@ export default function Header({ onThemeChange }: HeaderProps) {
   return (
     <ArcoHeader className="layout-header">
       <div className="layout-header-left">
+        <Button
+          type="text"
+          icon={sidebarCollapsed ? <IconMenuUnfold /> : <IconMenuFold />}
+          onClick={handleSidebarCollapseToggle}
+          className="header-sidebar-toggle"
+        />
         <div className="layout-logo">
           <span>管理系统</span>
         </div>

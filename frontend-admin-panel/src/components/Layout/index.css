@@ -26,6 +26,18 @@
 .layout-header-left {
   display: flex;
   align-items: center;
+  gap: 16px;
+}
+
+.header-sidebar-toggle {
+  color: var(--color-text-2);
+  font-size: 18px;
+  padding: 4px 8px;
+}
+
+.header-sidebar-toggle:hover {
+  color: var(--color-text-1);
+  background: var(--color-fill-2);
 }
 
 .layout-logo {
@@ -80,13 +92,72 @@
 .layout-sider {
   background: var(--color-bg-1);
   border-right: 1px solid var(--color-border);
-  overflow-y: auto;
-  width: 220px !important;
+  overflow: hidden;
   flex-shrink: 0;
+  transition: width 0.2s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-sider .arco-layout-sider-children {
+  width: 220px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .layout-sider .arco-menu {
   border-right: none;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* 收缩状态下，确保只显示图标 */
+.layout-sider .arco-menu-collapsed .arco-sub-menu-title > span > span:last-child,
+.layout-sider .arco-menu-collapsed .arco-menu-item > span:last-child {
+  display: none !important;
+  width: 0 !important;
+  max-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  opacity: 0 !important;
+}
+
+/* 收缩状态下，隐藏SubMenu的展开箭头 */
+.layout-sider .arco-menu-collapsed .arco-sub-menu-title .arco-icon-hover,
+.layout-sider .arco-menu-collapsed .arco-sub-menu-title .arco-icon {
+  display: none !important;
+}
+
+/* 收缩状态下，确保图标居中显示 */
+.layout-sider .arco-menu-collapsed .arco-sub-menu-title,
+.layout-sider .arco-menu-collapsed .arco-menu-item {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+}
+
+/* 收缩状态下，确保标题容器不显示省略号 */
+.layout-sider .arco-menu-collapsed .arco-sub-menu-title > span:first-child,
+.layout-sider .arco-menu-collapsed .arco-menu-item > span:first-child {
+  overflow: visible !important;
+  text-overflow: clip !important;
+  max-width: none !important;
+}
+
+/* 隐藏菜单的折叠按钮 */
+.layout-sider .arco-menu-collapse-button {
+  display: none !important;
+}
+
+/* 隐藏侧边栏的触发器 */
+.layout-sider .arco-layout-sider-trigger {
+  display: none !important;
 }
 
 /* Content 样式 */
