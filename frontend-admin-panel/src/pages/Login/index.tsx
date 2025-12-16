@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Message } from '@arco-design/web-react';
 import { login } from '@/api/login';
 import type { LoginRequest } from '@/types';
+import { setUserInfo } from '@/utils/user';
 import './index.css';
 
 const FormItem = Form.Item;
@@ -16,6 +17,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const result = await login(values);
+      // 保存用户信息到 localStorage
+      if (result.user) {
+        setUserInfo(result.user);
+      }
       Message.success('登录成功');
       navigate('/dashboard');
     } catch (error: any) {

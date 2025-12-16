@@ -12,8 +12,8 @@ export interface SysUser {
   id?: string;
   /** 用户状态（如 ENABLED / DISABLED / LOCKED） */
   status?: string;
-  /** 用户角色ID */
-  roleId?: number;
+  /** 用户角色代码，关联 sys_role 表的 code 字段 */
+  roleCode?: string;
   /** 账号类型（如 EMAIL / PHONE / USERNAME / WECHAT） */
   accountType?: string;
   /** 账号唯一标识（邮箱、手机号、用户名等） */
@@ -53,9 +53,7 @@ export interface SysUser {
  * 对应后端 SysRole
  */
 export interface SysRole {
-  /** 主键 ID */
-  id?: number;
-  /** 角色代码（唯一标识） */
+  /** 角色代码（主键，唯一标识） */
   code?: string;
   /** 角色名称 */
   name?: string;
@@ -91,8 +89,8 @@ export interface LoginResponse {
 export interface UserQueryParams {
   /** 用户状态（可选） */
   status?: string;
-  /** 角色ID（可选） */
-  roleId?: number;
+  /** 角色代码（可选） */
+  roleCode?: string;
   /** 账号类型（可选） */
   accountType?: string;
   /** 账号标识符（可选，支持模糊查询） */

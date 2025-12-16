@@ -18,37 +18,37 @@ export const createRole = (role: SysRole): Promise<SysRole> => {
 };
 
 /**
- * 根据ID查询角色
- * GET /api/admin/roles/{id}
+ * 根据代码查询角色
+ * GET /api/admin/roles/{code}
  * 
- * @param id 角色ID
+ * @param code 角色代码
  * @returns 角色信息
  */
-export const getRoleById = (id: number): Promise<SysRole> => {
-  return get<SysRole>(`/api/admin/roles/${id}`);
+export const getRoleByCode = (code: string): Promise<SysRole> => {
+  return get<SysRole>(`/api/admin/roles/${code}`);
 };
 
 /**
  * 更新角色
- * PUT /api/admin/roles/{id}
+ * PUT /api/admin/roles/{code}
  * 
- * @param id 角色ID
+ * @param code 角色代码
  * @param role 角色实体
  * @returns 更新后的角色信息
  */
-export const updateRole = (id: number, role: SysRole): Promise<SysRole> => {
-  return put<SysRole>(`/api/admin/roles/${id}`, role);
+export const updateRole = (code: string, role: SysRole): Promise<SysRole> => {
+  return put<SysRole>(`/api/admin/roles/${code}`, role);
 };
 
 /**
  * 删除角色
- * DELETE /api/admin/roles/{id}
+ * DELETE /api/admin/roles/{code}
  * 
- * @param id 角色ID
+ * @param code 角色代码
  * @returns void
  */
-export const deleteRole = (id: number): Promise<void> => {
-  return del<void>(`/api/admin/roles/${id}`);
+export const deleteRole = (code: string): Promise<void> => {
+  return del<void>(`/api/admin/roles/${code}`);
 };
 
 /**
