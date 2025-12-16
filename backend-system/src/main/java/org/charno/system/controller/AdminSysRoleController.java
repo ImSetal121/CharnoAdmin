@@ -1,5 +1,6 @@
 package org.charno.system.controller;
 
+import org.charno.commonsecurity.annotation.RequiresRole;
 import org.charno.commonweb.response.ApiResponse;
 import org.charno.systementity.entity.SysRole;
 import org.charno.systementity.repository.SysRoleRepository;
@@ -16,6 +17,7 @@ import java.util.List;
  * 系统角色管理控制器
  * 面向管理的控制类，提供CRUD及条件查询功能
  */
+@RequiresRole("ADMIN")
 @RestController
 @RequestMapping("/api/admin/roles")
 public class AdminSysRoleController {

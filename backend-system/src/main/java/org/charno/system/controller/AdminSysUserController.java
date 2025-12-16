@@ -1,5 +1,6 @@
 package org.charno.system.controller;
 
+import org.charno.commonsecurity.annotation.RequiresRole;
 import org.charno.commonweb.response.ApiResponse;
 import org.charno.systementity.entity.SysUser;
 import org.charno.systementity.repository.SysUserRepository;
@@ -17,6 +18,7 @@ import java.util.UUID;
  * 系统用户管理控制器
  * 面向管理的控制类，提供CRUD及条件查询功能
  */
+@RequiresRole("ADMIN")
 @RestController
 @RequestMapping("/api/admin/users")
 public class AdminSysUserController {

@@ -61,13 +61,17 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 
                 // 添加自定义认证过滤器
-                // 注意：AuthenticationFilter（Order=-100）会先执行，添加用户信息到请求头
-                // 然后这个认证过滤器会从请求头读取用户信息并创建Authentication对象
+                // 注意：
+                // 1. AuthenticationFilter（Order=-100）会先执行，添加用户信息到请求头
+                // 2. RoleCheckWebFilter（Order=0）在HandlerMapping之后执行，校验角色权限
+                // 3. 然后这个认证过滤器会从请求头读取用户信息并创建Authentication对象
                 .addFilterAt(authenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 
-                // 配置未认证时的处理
+                // 配置未认证和权限不足时的处理
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(authenticationEntryPoint())
+                        // 注意：RoleCheckWebFilter已经处理了403错误，这里配置的accessDeniedHandler
+                        // 主要用于Spring Security层面的权限校验失败（当前未使用）
                 )
                 
                 // 配置请求授权规则
