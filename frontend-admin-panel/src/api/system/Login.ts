@@ -1,5 +1,5 @@
 /**
- * 登录相关API
+ * 登录控制器API
  * 对应后端 LoginController
  */
 

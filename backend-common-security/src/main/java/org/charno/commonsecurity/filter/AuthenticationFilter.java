@@ -2,6 +2,8 @@ package org.charno.commonsecurity.filter;
 
 import org.charno.commonsecurity.util.TokenUtil;
 import org.charno.systementity.entity.SysUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,8 @@ import reactor.core.publisher.Mono;
 @Component
 @Order(-100) // 设置较高的优先级，在其他过滤器之前执行
 public class AuthenticationFilter implements WebFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
@@ -66,6 +70,7 @@ public class AuthenticationFilter implements WebFilter {
                         return chain.filter(exchange.mutate().request(mutatedRequest).build());
                     } else {
                         // 用户状态异常，不添加用户信息但继续放行
+                        log.warn("User status is not ENABLED: userId={}, status={}", user.getId(), user.getStatus());
                         return chain.filter(exchange);
                     }
                 })

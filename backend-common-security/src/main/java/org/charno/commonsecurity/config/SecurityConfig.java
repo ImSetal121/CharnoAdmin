@@ -76,6 +76,9 @@ public class SecurityConfig {
                 
                 // 配置请求授权规则
                 .authorizeExchange(exchanges -> exchanges
+                        // 允许 OPTIONS 请求（CORS 预检请求）
+                        .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        
                         // 允许匿名访问的路径
                         .pathMatchers(
                                 "/api/login"       // 登录接口

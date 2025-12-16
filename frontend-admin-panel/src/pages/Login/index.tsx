@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Message } from '@arco-design/web-react';
-import { login } from '@/api/login';
+import { login } from '@/api/system/Login';
 import type { LoginRequest } from '@/types';
 import { setUserInfo } from '@/utils/user';
 import './index.css';

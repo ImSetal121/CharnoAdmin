@@ -1,5 +1,5 @@
 /**
- * 用户管理API
+ * 系统用户管理控制器API
  * 对应后端 AdminSysUserController
  */
 

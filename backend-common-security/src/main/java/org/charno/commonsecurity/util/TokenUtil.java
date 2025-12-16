@@ -1,6 +1,9 @@
 package org.charno.commonsecurity.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.charno.systementity.entity.SysUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -17,13 +20,17 @@ import java.util.UUID;
 @Component
 public class TokenUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(TokenUtil.class);
+
     private static final String TOKEN_PREFIX = "token:";
     private static final long TOKEN_EXPIRE_SECONDS = 604800L; // 7天
 
     private final ReactiveRedisTemplate<String, Object> redisTemplate;
+    private final ObjectMapper objectMapper;
 
-    public TokenUtil(ReactiveRedisTemplate<String, Object> redisTemplate) {
+    public TokenUtil(ReactiveRedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
         this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -48,6 +55,7 @@ public class TokenUtil {
         String key = TOKEN_PREFIX + token;
         return redisTemplate.opsForValue()
                 .set(key, user, Duration.ofSeconds(TOKEN_EXPIRE_SECONDS))
+                .doOnError(error -> log.warn("Failed to save token to Redis: key={}, error: {}", key, error.getMessage()))
                 .then();
     }
 
@@ -62,8 +70,28 @@ public class TokenUtil {
         String key = TOKEN_PREFIX + token;
         return redisTemplate.opsForValue()
                 .get(key)
-                .cast(SysUser.class)
-                .onErrorResume(e -> Mono.empty());
+                .flatMap(obj -> {
+                    try {
+                        // 将 Redis 中的对象转换为 SysUser
+                        // Redis 中存储的是 JSON，反序列化后可能是 LinkedHashMap
+                        SysUser user;
+                        if (obj instanceof SysUser) {
+                            user = (SysUser) obj;
+                        } else {
+                            // 如果是 LinkedHashMap 或其他类型，使用 ObjectMapper 转换
+                            user = objectMapper.convertValue(obj, SysUser.class);
+                        }
+                        return Mono.just(user);
+                    } catch (Exception e) {
+                        log.warn("Failed to convert object to SysUser: {}, error: {}", obj.getClass().getName(), e.getMessage());
+                        return Mono.empty();
+                    }
+                })
+                .switchIfEmpty(Mono.empty())
+                .onErrorResume(e -> {
+                    log.warn("Failed to get user from Redis for token: {}, error: {}", key, e.getMessage());
+                    return Mono.empty();
+                });
     }
 
     /**

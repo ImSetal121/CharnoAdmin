@@ -18,7 +18,7 @@ import {
   createRole,
   updateRole,
   deleteRole,
-} from '@/api/role';
+} from '@/api/system/AdminSysRole';
 import './index.css';
 
 const { Title } = Typography;
@@ -173,7 +173,8 @@ export default function RolesPage() {
     },
     {
       title: '操作',
-      width: 150,
+      width: 200,
+      fixed: 'right' as const,
       render: (_: any, record: SysRole) => (
         <Space>
           <Button

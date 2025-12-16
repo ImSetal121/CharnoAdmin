@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layout, Button, Dropdown, Avatar, Space, Menu } from '@arco-design/web-react';
+import { Layout, Button, Dropdown, Avatar, Space, Menu, Message } from '@arco-design/web-react';
 import { IconMoon, IconSun, IconFullscreen, IconFullscreenExit, IconUser, IconPoweroff, IconMenuFold, IconMenuUnfold } from '@arco-design/web-react/icon';
 import { toggleTheme, getTheme } from '@/utils/theme';
 import { toggleFullscreen, isFullscreen, onFullscreenChange } from '@/utils/fullscreen';
 import { getUserInfo, clearUserInfo } from '@/utils/user';
 import { removeToken } from '@/utils/request';
+import { logout } from '@/api/system/Logout';
 import './index.css';
 
 const { Header: ArcoHeader } = Layout;
@@ -59,10 +60,23 @@ export default function Header({ onThemeChange, sidebarCollapsed = false, onSide
   };
 
   // 处理退出登录
-  const handleLogout = () => {
-    removeToken();
-    clearUserInfo();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // 调用登出接口
+      await logout();
+      // 清除本地Token和用户信息
+      removeToken();
+      clearUserInfo();
+      // 跳转到登录页
+      navigate('/login');
+      Message.success('退出登录成功');
+    } catch {
+      // 即使接口调用失败，也清除本地信息并跳转
+      removeToken();
+      clearUserInfo();
+      navigate('/login');
+      // 如果接口调用失败，不显示错误提示（避免信息泄露）
+    }
   };
 
   // 处理账户设置

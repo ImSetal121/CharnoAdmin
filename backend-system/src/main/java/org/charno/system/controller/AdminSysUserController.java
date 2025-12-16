@@ -69,10 +69,47 @@ public class AdminSysUserController {
      */
     @PutMapping("/{id}")
     public Mono<ApiResponse<SysUser>> update(@PathVariable UUID id, @RequestBody SysUser user) {
-        user.setId(id);
-        return userRepository.save(user)
-            .map(ApiResponse::success)
-            .onErrorResume(e -> Mono.just(ApiResponse.fail("更新用户失败：" + e.getMessage())));
+        // 先查询现有用户，保留时间戳等字段
+        return userRepository.findById(id)
+            .flatMap(existingUser -> {
+                // 更新允许修改的字段
+                if (user.getStatus() != null) {
+                    existingUser.setStatus(user.getStatus());
+                }
+                if (user.getRoleCode() != null) {
+                    existingUser.setRoleCode(user.getRoleCode());
+                }
+                if (user.getAccountType() != null) {
+                    existingUser.setAccountType(user.getAccountType());
+                }
+                if (user.getAccountIdentifier() != null) {
+                    existingUser.setAccountIdentifier(user.getAccountIdentifier());
+                }
+                if (user.getNickname() != null) {
+                    existingUser.setNickname(user.getNickname());
+                }
+                if (user.getAvatarUrl() != null) {
+                    existingUser.setAvatarUrl(user.getAvatarUrl());
+                }
+                if (user.getGender() != null) {
+                    existingUser.setGender(user.getGender());
+                }
+                if (user.getLocale() != null) {
+                    existingUser.setLocale(user.getLocale());
+                }
+                if (user.getTimezone() != null) {
+                    existingUser.setTimezone(user.getTimezone());
+                }
+                // 保留原有的时间戳字段，不更新
+                // 保留密码相关字段，不更新（密码修改应通过专门的接口）
+                // 更新 updatedAt
+                existingUser.setUpdatedAt(java.time.OffsetDateTime.now());
+                // 保存更新后的用户
+                return userRepository.save(existingUser)
+                    .map(ApiResponse::success);
+            })
+            .switchIfEmpty(Mono.just(ApiResponse.<SysUser>fail("用户不存在")))
+            .onErrorResume(e -> Mono.just(ApiResponse.<SysUser>fail("更新用户失败：" + e.getMessage())));
     }
 
     /**
@@ -83,8 +120,18 @@ public class AdminSysUserController {
      */
     @DeleteMapping("/{id}")
     public Mono<ApiResponse<Void>> delete(@PathVariable UUID id) {
+        // 先查询用户，检查是否为 root 账号
+        return userRepository.findById(id)
+            .flatMap(user -> {
+                // 检查账号标识是否为 root，root 账号不允许删除
+                if ("root".equalsIgnoreCase(user.getAccountIdentifier())) {
+                    return Mono.just(ApiResponse.<Void>fail("root 账号不允许删除"));
+                }
+                // 允许删除
         return userRepository.deleteById(id)
-            .then(Mono.just(ApiResponse.<Void>success()))
+                    .then(Mono.just(ApiResponse.<Void>success()));
+            })
+            .switchIfEmpty(Mono.just(ApiResponse.<Void>fail("用户不存在")))
             .onErrorResume(e -> Mono.just(ApiResponse.<Void>fail("删除用户失败：" + e.getMessage())));
     }
 

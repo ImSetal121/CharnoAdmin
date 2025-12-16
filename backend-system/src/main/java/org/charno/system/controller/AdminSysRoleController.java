@@ -8,9 +8,11 @@ import org.charno.system.service.AdminSysRoleService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -24,10 +26,12 @@ public class AdminSysRoleController {
 
     private final AdminSysRoleService adminRoleService;
     private final SysRoleRepository roleRepository;
+    private final R2dbcEntityTemplate template;
 
-    public AdminSysRoleController(AdminSysRoleService adminRoleService, SysRoleRepository roleRepository) {
+    public AdminSysRoleController(AdminSysRoleService adminRoleService, SysRoleRepository roleRepository, R2dbcEntityTemplate template) {
         this.adminRoleService = adminRoleService;
         this.roleRepository = roleRepository;
+        this.template = template;
     }
 
     // ==================== CRUD 操作 ====================
@@ -40,9 +44,25 @@ public class AdminSysRoleController {
      */
     @PostMapping
     public Mono<ApiResponse<SysRole>> create(@RequestBody SysRole role) {
-        return roleRepository.save(role)
-            .map(ApiResponse::success)
-            .onErrorResume(e -> Mono.just(ApiResponse.fail("创建角色失败：" + e.getMessage())));
+        // 检查角色代码是否已存在
+        if (role.getCode() == null || role.getCode().isEmpty()) {
+            return Mono.just(ApiResponse.<SysRole>fail("角色代码不能为空"));
+        }
+        
+        return roleRepository.existsById(role.getCode())
+            .flatMap(exists -> {
+                if (exists) {
+                    return Mono.just(ApiResponse.<SysRole>fail("角色代码已存在：" + role.getCode()));
+                }
+                // 设置创建时间
+                if (role.getCreatedAt() == null) {
+                    role.setCreatedAt(OffsetDateTime.now());
+                }
+                // 使用 insert() 方法强制插入新记录，避免 save() 尝试更新
+                return template.insert(role)
+                    .map(ApiResponse::success);
+            })
+            .onErrorResume(e -> Mono.just(ApiResponse.<SysRole>fail("创建角色失败：" + e.getMessage())));
     }
 
     /**
@@ -68,10 +88,18 @@ public class AdminSysRoleController {
      */
     @PutMapping("/{code}")
     public Mono<ApiResponse<SysRole>> update(@PathVariable String code, @RequestBody SysRole role) {
-        role.setCode(code);
-        return roleRepository.save(role)
-            .map(ApiResponse::success)
-            .onErrorResume(e -> Mono.just(ApiResponse.fail("更新角色失败：" + e.getMessage())));
+        // 先查询现有角色，保留创建时间
+        return roleRepository.findById(code)
+            .flatMap(existingRole -> {
+                // 更新允许修改的字段
+                existingRole.setName(role.getName());
+                existingRole.setDescription(role.getDescription());
+                // 保留原有的创建时间，不更新
+                return roleRepository.save(existingRole)
+                    .map(ApiResponse::success);
+            })
+            .switchIfEmpty(Mono.just(ApiResponse.<SysRole>fail("角色不存在")))
+            .onErrorResume(e -> Mono.just(ApiResponse.<SysRole>fail("更新角色失败：" + e.getMessage())));
     }
 
     /**
@@ -82,6 +110,11 @@ public class AdminSysRoleController {
      */
     @DeleteMapping("/{code}")
     public Mono<ApiResponse<Void>> delete(@PathVariable String code) {
+        // 检查角色代码是否为 ADMIN，ADMIN 角色不允许删除
+        if ("ADMIN".equalsIgnoreCase(code)) {
+            return Mono.just(ApiResponse.<Void>fail("ADMIN 角色不允许删除"));
+        }
+        // 允许删除
         return roleRepository.deleteById(code)
             .then(Mono.just(ApiResponse.<Void>success()))
             .onErrorResume(e -> Mono.just(ApiResponse.<Void>fail("删除角色失败：" + e.getMessage())));

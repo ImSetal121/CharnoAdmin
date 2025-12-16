@@ -19,7 +19,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
-} from '@/api/user';
+} from '@/api/system/AdminSysUser';
 import './index.css';
 
 const { Title } = Typography;
@@ -160,9 +160,36 @@ export default function UsersPage() {
       width: 180,
     },
     {
+      title: '账号类型',
+      dataIndex: 'accountType',
+      width: 100,
+      render: (type: string) => {
+        const typeMap: Record<string, string> = {
+          EMAIL: '邮箱',
+          PHONE: '手机',
+          USERNAME: '用户名',
+          WECHAT: '微信',
+        };
+        return typeMap[type] || type;
+      },
+    },
+    {
       title: '昵称',
       dataIndex: 'nickname',
       width: 150,
+    },
+    {
+      title: '性别',
+      dataIndex: 'gender',
+      width: 80,
+      render: (gender: string) => {
+        const genderMap: Record<string, string> = {
+          MALE: '男',
+          FEMALE: '女',
+          UNKNOWN: '未知',
+        };
+        return genderMap[gender] || gender || '-';
+      },
     },
     {
       title: '角色代码',
@@ -184,6 +211,21 @@ export default function UsersPage() {
       },
     },
     {
+      title: '最后登录时间',
+      dataIndex: 'lastLoginAt',
+      width: 180,
+      render: (time: string) => {
+        if (!time) return '-';
+        return new Date(time).toLocaleString('zh-CN');
+      },
+    },
+    {
+      title: '最后登录IP',
+      dataIndex: 'lastLoginIp',
+      width: 140,
+      render: (ip: string) => ip || '-',
+    },
+    {
       title: '创建时间',
       dataIndex: 'createdAt',
       width: 180,
@@ -193,8 +235,18 @@ export default function UsersPage() {
       },
     },
     {
+      title: '更新时间',
+      dataIndex: 'updatedAt',
+      width: 180,
+      render: (time: string) => {
+        if (!time) return '-';
+        return new Date(time).toLocaleString('zh-CN');
+      },
+    },
+    {
       title: '操作',
-      width: 150,
+      width: 200,
+      fixed: 'right' as const,
       render: (_: any, record: SysUser) => (
         <Space>
           <Button
@@ -306,7 +358,7 @@ export default function UsersPage() {
         onCancel={handleCloseModal}
         autoFocus={false}
         focusLock={true}
-        style={{ width: 600 }}
+        style={{ width: 700 }}
       >
         <Form form={form} layout="vertical">
           <FormItem
@@ -350,6 +402,12 @@ export default function UsersPage() {
           </FormItem>
           <FormItem label="头像URL" field="avatarUrl">
             <Input placeholder="请输入头像URL" />
+          </FormItem>
+          <FormItem label="语言环境" field="locale">
+            <Input placeholder="请输入语言环境，如：zh-CN, en-US" />
+          </FormItem>
+          <FormItem label="时区" field="timezone">
+            <Input placeholder="请输入时区，如：Asia/Shanghai" />
           </FormItem>
         </Form>
       </Modal>

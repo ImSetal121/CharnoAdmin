@@ -3,6 +3,8 @@ package org.charno.commonsecurity.filter;
 import org.charno.commonsecurity.annotation.RequiresRole;
 import org.charno.commonsecurity.util.RoleCheckUtil;
 import org.charno.commonweb.response.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
@@ -33,6 +35,8 @@ import java.nio.charset.StandardCharsets;
 @Order(0) // 在HandlerMapping之后执行，以便获取HandlerMethod
 public class RoleCheckWebFilter implements WebFilter {
 
+    private static final Logger log = LoggerFactory.getLogger(RoleCheckWebFilter.class);
+
     private static final String USER_ROLE_CODE_HEADER = "X-User-Role-Code";
 
     @Override
@@ -59,15 +63,21 @@ public class RoleCheckWebFilter implements WebFilter {
                     if (roleCode == null || roleCode.isEmpty()) {
                         // 没有roleCode，返回403（用户可能未认证，但由Spring Security处理401）
                         // 这里返回403是因为方法需要角色权限，但用户没有角色信息
+                        log.warn("Role check failed: no roleCode found, requiredRoles={}, path={}", 
+                                String.join(",", requiredRoles), exchange.getRequest().getURI().getPath());
                         return handleForbidden(exchange);
                     }
 
                     // 直接校验角色code是否匹配
                     if (RoleCheckUtil.isRoleMatched(roleCode, requiredRoles)) {
                         // 角色匹配，放行
+                        log.debug("Role check passed: roleCode={}, requiredRoles={}", 
+                                roleCode, String.join(",", requiredRoles));
                         return chain.filter(exchange);
                     } else {
                         // 角色不匹配，返回403
+                        log.warn("Role check failed: roleCode={}, requiredRoles={}, path={}", 
+                                roleCode, String.join(",", requiredRoles), exchange.getRequest().getURI().getPath());
                         return handleForbidden(exchange);
                     }
                 })

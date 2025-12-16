@@ -1,5 +1,5 @@
 /**
- * 角色管理API
+ * 系统角色管理控制器API
  * 对应后端 AdminSysRoleController
  */
 
