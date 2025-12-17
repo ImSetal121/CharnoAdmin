@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@arco-design/web-react": "^2.66.8",
+    "@types/react-transition-group": "^4.4.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.10.1"
+    "react-router-dom": "^7.10.1",
+    "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

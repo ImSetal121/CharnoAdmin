@@ -92,6 +92,11 @@ public class RoleCheckWebFilter implements WebFilter {
      * @return Mono<Void>
      */
     private Mono<Void> handleForbidden(ServerWebExchange exchange) {
+        // 检查响应是否已提交，如果已提交则不再处理
+        if (exchange.getResponse().isCommitted()) {
+            return Mono.empty();
+        }
+        
         exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 

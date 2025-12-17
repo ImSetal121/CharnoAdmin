@@ -12,14 +12,16 @@ import {
   Typography,
   Pagination,
 } from '@arco-design/web-react';
-import { IconPlus, IconEdit, IconDelete, IconSearch } from '@arco-design/web-react/icon';
-import type { SysUser, UserPageQueryParams } from '@/types';
+import { IconPlus, IconEdit, IconDelete, IconSearch, IconUserAdd } from '@arco-design/web-react/icon';
+import type { SysUser, UserPageQueryParams, RegisterRequest, SysRole } from '@/types';
 import {
   queryUsersWithPage,
   createUser,
   updateUser,
   deleteUser,
 } from '@/api/system/AdminSysUser';
+import { queryRoles } from '@/api/system/AdminSysRole';
+import { register } from '@/api/system/Register';
 import './index.css';
 
 const { Title } = Typography;
@@ -33,8 +35,11 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [visible, setVisible] = useState(false);
+  const [registerVisible, setRegisterVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<SysUser | null>(null);
+  const [roles, setRoles] = useState<SysRole[]>([]);
   const [form] = Form.useForm();
+  const [registerForm] = Form.useForm<RegisterRequest>();
 
   // 查询参数
   const [queryParams, setQueryParams] = useState<UserPageQueryParams>({
@@ -63,8 +68,19 @@ export default function UsersPage() {
     }
   };
 
+  // 加载角色列表
+  const loadRoles = async () => {
+    try {
+      const data = await queryRoles();
+      setRoles(data);
+    } catch (error: any) {
+      Message.error(error.message || '加载角色列表失败');
+    }
+  };
+
   useEffect(() => {
     loadUsers();
+    loadRoles();
   }, [currentPage, pageSize, queryParams]);
 
   // 处理搜索
@@ -144,6 +160,33 @@ export default function UsersPage() {
         }
       },
     });
+  };
+
+  // 打开注册弹窗
+  const handleOpenRegisterModal = () => {
+    registerForm.resetFields();
+    setRegisterVisible(true);
+  };
+
+  // 关闭注册弹窗
+  const handleCloseRegisterModal = () => {
+    setRegisterVisible(false);
+    registerForm.resetFields();
+  };
+
+  // 处理注册
+  const handleRegister = async () => {
+    try {
+      const values = await registerForm.validate();
+      await register(values);
+      Message.success('注册成功');
+      handleCloseRegisterModal();
+      loadUsers();
+    } catch (error: any) {
+      if (error.message) {
+        Message.error(error.message);
+      }
+    }
   };
 
   // 表格列定义
@@ -280,9 +323,14 @@ export default function UsersPage() {
             <Title heading={4} style={{ margin: 0 }}>
               用户管理
             </Title>
+            <Space>
+              <Button type="primary" icon={<IconUserAdd />} onClick={handleOpenRegisterModal}>
+                新用户注册
+              </Button>
             <Button type="primary" icon={<IconPlus />} onClick={() => handleOpenModal()}>
               新增用户
             </Button>
+            </Space>
           </div>
 
           {/* 搜索表单 */}
@@ -350,6 +398,50 @@ export default function UsersPage() {
         </Space>
       </Card>
 
+      {/* 注册弹窗 */}
+      <Modal
+        title="新用户注册"
+        visible={registerVisible}
+        onOk={handleRegister}
+        onCancel={handleCloseRegisterModal}
+        autoFocus={false}
+        focusLock={true}
+        style={{ width: 500 }}
+      >
+        <Form form={registerForm} layout="vertical">
+          <FormItem
+            label="用户名"
+            field="username"
+            rules={[
+              { required: true, message: '请输入用户名' },
+              { minLength: 2, message: '用户名至少2个字符' },
+            ]}
+          >
+            <Input placeholder="请输入用户名" />
+          </FormItem>
+          <FormItem
+            label="密码"
+            field="password"
+            rules={[
+              { required: true, message: '请输入密码' },
+              { minLength: 6, message: '密码至少6个字符' },
+            ]}
+          >
+            <Input.Password placeholder="请输入密码" />
+          </FormItem>
+          <FormItem
+            label="昵称"
+            field="nickname"
+            rules={[
+              { required: true, message: '请输入昵称' },
+              { minLength: 1, message: '昵称不能为空' },
+            ]}
+          >
+            <Input placeholder="请输入昵称" />
+          </FormItem>
+        </Form>
+      </Modal>
+
       {/* 新增/编辑弹窗 */}
       <Modal
         title={editingUser ? '编辑用户' : '新增用户'}
@@ -375,8 +467,16 @@ export default function UsersPage() {
           >
             <Input placeholder="请输入昵称" />
           </FormItem>
-          <FormItem label="角色代码" field="roleCode">
-            <Input placeholder="请输入角色代码" />
+          <FormItem label="角色" field="roleCode">
+            <Select placeholder="请选择角色" allowClear>
+              {roles.map((role) => 
+                role.code ? (
+                  <Option key={role.code} value={role.code}>
+                    {role.name || role.code}
+                  </Option>
+                ) : null
+              )}
+            </Select>
           </FormItem>
           <FormItem label="状态" field="status">
             <Select placeholder="请选择状态">

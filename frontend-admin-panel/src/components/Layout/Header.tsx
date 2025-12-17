@@ -72,9 +72,9 @@ export default function Header({ onThemeChange, sidebarCollapsed = false, onSide
       Message.success('退出登录成功');
     } catch {
       // 即使接口调用失败，也清除本地信息并跳转
-      removeToken();
-      clearUserInfo();
-      navigate('/login');
+    removeToken();
+    clearUserInfo();
+    navigate('/login');
       // 如果接口调用失败，不显示错误提示（避免信息泄露）
     }
   };

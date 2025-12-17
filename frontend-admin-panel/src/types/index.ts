@@ -84,6 +84,18 @@ export interface LoginResponse {
 }
 
 /**
+ * 注册请求参数
+ */
+export interface RegisterRequest {
+  /** 用户名 */
+  username: string;
+  /** 密码 */
+  password: string;
+  /** 昵称 */
+  nickname: string;
+}
+
+/**
  * 用户查询参数
  */
 export interface UserQueryParams {

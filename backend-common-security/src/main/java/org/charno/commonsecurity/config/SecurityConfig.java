@@ -81,7 +81,8 @@ public class SecurityConfig {
                         
                         // 允许匿名访问的路径
                         .pathMatchers(
-                                "/api/login"       // 登录接口
+                                "/api/login",       // 登录接口
+                                "/api/register"     // 注册接口
                         ).permitAll()
                         
                         // 其他所有请求都需要认证
@@ -99,7 +100,11 @@ public class SecurityConfig {
     @Bean
     public ServerAuthenticationEntryPoint authenticationEntryPoint() {
         return (exchange, ex) -> {
-            ServerWebExchange mutatedExchange = exchange.mutate().response(exchange.getResponse()).build();
+            // 检查响应是否已提交，如果已提交则不再处理
+            if (exchange.getResponse().isCommitted()) {
+                return Mono.empty();
+            }
+            
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
             
