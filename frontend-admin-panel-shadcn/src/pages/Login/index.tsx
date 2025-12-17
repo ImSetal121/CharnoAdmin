@@ -25,6 +25,7 @@ import type { LoginRequest } from '@/types';
 import { setUserInfo } from '@/utils/user';
 import { toast } from 'sonner';
 import loginImage from '@/assets/login.png';
+import { TextScramble } from '@/components/motion-primitives/text-scramble';
 
 const loginSchema = z.object({
   username: z.string().min(2, '用户名至少2个字符'),
@@ -69,13 +70,33 @@ export default function LoginPage() {
               <form className="p-6 md:p-8" onSubmit={form.handleSubmit(handleSubmit)}>
                 <FieldGroup>
                   <div className="flex flex-col items-center gap-2 text-center">
-                    <h1 className="text-2xl font-bold">欢迎回来</h1>
-                    <p className="text-muted-foreground text-balance">
+                    <TextScramble
+                      as="h1"
+                      className="text-2xl font-bold"
+                      duration={1.2}
+                      speed={0.03}
+                    >
+                      欢迎回来
+                    </TextScramble>
+                    <TextScramble
+                      as="p"
+                      className="text-muted-foreground text-balance"
+                      duration={1.5}
+                      speed={0.04}
+                    >
                       登录到您的 Charno Admin 账户
-                    </p>
+                    </TextScramble>
                   </div>
                   <Field>
-                    <FieldLabel htmlFor="username">用户名</FieldLabel>
+                    <FieldLabel htmlFor="username">
+                      <TextScramble
+                        as="span"
+                        duration={1.0}
+                        speed={0.04}
+                      >
+                        用户名
+                      </TextScramble>
+                    </FieldLabel>
                     <FormField
                       control={form.control}
                       name="username"
@@ -96,7 +117,15 @@ export default function LoginPage() {
                   </Field>
                   <Field>
                     <div className="flex items-center">
-                      <FieldLabel htmlFor="password">密码</FieldLabel>
+                      <FieldLabel htmlFor="password">
+                        <TextScramble
+                          as="span"
+                          duration={1.0}
+                          speed={0.04}
+                        >
+                          密码
+                        </TextScramble>
+                      </FieldLabel>
                       <a
                         href="#"
                         className="ml-auto text-sm underline-offset-2 hover:underline"
@@ -105,7 +134,13 @@ export default function LoginPage() {
                           // TODO: 实现忘记密码功能
                         }}
                       >
-                        忘记密码？
+                        <TextScramble
+                          as="span"
+                          duration={0.8}
+                          speed={0.05}
+                        >
+                          忘记密码？
+                        </TextScramble>
                       </a>
                     </div>
                     <FormField
@@ -129,11 +164,33 @@ export default function LoginPage() {
                   </Field>
                   <Field>
                     <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? '登录中...' : '登录'}
+                      {loading ? (
+                        <TextScramble
+                          as="span"
+                          duration={0.6}
+                          speed={0.05}
+                        >
+                          登录中...
+                        </TextScramble>
+                      ) : (
+                        <TextScramble
+                          as="span"
+                          duration={0.8}
+                          speed={0.04}
+                        >
+                          登录
+                        </TextScramble>
+                      )}
                     </Button>
                   </Field>
                   <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                    或使用以下方式登录
+                    <TextScramble
+                      as="span"
+                      duration={1.0}
+                      speed={0.04}
+                    >
+                      或使用以下方式登录
+                    </TextScramble>
                   </FieldSeparator>
                   <Field className="grid grid-cols-3 gap-4">
                     <Button variant="outline" type="button" className="aspect-square">
