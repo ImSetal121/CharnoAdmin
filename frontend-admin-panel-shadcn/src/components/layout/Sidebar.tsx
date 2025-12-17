@@ -5,11 +5,19 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
-import { Users, UserCog, Moon, Sun, LogOut, Settings } from 'lucide-react';
+import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight } from 'lucide-react';
 import { getUserInfo, clearUserInfo } from '@/utils/user';
 import { removeToken } from '@/utils/request';
 import { logout } from '@/api/system/Logout';
@@ -30,6 +38,7 @@ import { toast } from 'sonner';
 const menuItems = [
   {
     title: '系统管理',
+    icon: Settings,
     items: [
       {
         title: '用户管理',
@@ -85,33 +94,74 @@ export function AppSidebar() {
     return name.substring(0, 2).toUpperCase();
   };
 
+  // 检查是否有子菜单项处于激活状态
+  const isGroupOpen = (group: typeof menuItems[0]) => {
+    return group.items.some(
+      (item) =>
+        location.pathname === item.url || location.pathname.startsWith(item.url + '/')
+    );
+  };
+
   return (
     <Sidebar>
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <span className="text-sm font-bold">C</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">Charno Admin.</span>
+            </div>
+          </div>
+        </div>
+      </SidebarHeader>
       <SidebarContent>
-        {menuItems.map((group) => (
-          <SidebarGroup key={group.title}>
-            <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.url || location.pathname.startsWith(item.url + '/');
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton
-                        onClick={() => handleMenuClick(item.url)}
-                        isActive={isActive}
-                      >
-                        <Icon />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
+        {menuItems.map((group) => {
+          const GroupIcon = group.icon;
+          const defaultOpen = isGroupOpen(group);
+          
+          return (
+            <SidebarGroup key={group.title}>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <Collapsible asChild defaultOpen={defaultOpen}>
+                    <SidebarMenuItem>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton tooltip={group.title}>
+                          <GroupIcon />
+                          <span>{group.title}</span>
+                          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-90" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {group.items.map((item) => {
+                            const Icon = item.icon;
+                            const isActive =
+                              location.pathname === item.url ||
+                              location.pathname.startsWith(item.url + '/');
+                            return (
+                              <SidebarMenuSubItem key={item.title}>
+                                <SidebarMenuSubButton
+                                  isActive={isActive}
+                                  onClick={() => handleMenuClick(item.url)}
+                                >
+                                  <Icon />
+                                  <span>{item.title}</span>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            );
+                          })}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
                     </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+                  </Collapsible>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
       <SidebarFooter>
         <Separator className="mb-2" />
