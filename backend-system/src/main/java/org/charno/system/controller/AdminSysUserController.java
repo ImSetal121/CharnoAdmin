@@ -72,6 +72,13 @@ public class AdminSysUserController {
         // 先查询现有用户，保留时间戳等字段
         return userRepository.findById(id)
             .flatMap(existingUser -> {
+                // 检查是否为 root 账号，root 账号的角色代码不允许更改
+                if ("root".equalsIgnoreCase(existingUser.getAccountIdentifier()) 
+                    && user.getRoleCode() != null 
+                    && !user.getRoleCode().equals(existingUser.getRoleCode())) {
+                    return Mono.just(ApiResponse.<SysUser>fail("root 账号的角色代码不允许更改"));
+                }
+                
                 // 更新允许修改的字段
                 if (user.getStatus() != null) {
                     existingUser.setStatus(user.getStatus());
