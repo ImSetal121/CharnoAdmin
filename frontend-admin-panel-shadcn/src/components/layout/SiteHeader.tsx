@@ -5,7 +5,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 const pageTitles: Record<string, string> = {
   '/system/users': '用户管理',
   '/system/roles': '角色管理',
-  '/account/settings': '账户设置',
+  '/settings': '设置',
   '/dashboard': '仪表板',
 };
 

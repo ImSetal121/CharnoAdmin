@@ -24,6 +24,7 @@ import { login } from '@/api/system/Login';
 import type { LoginRequest } from '@/types';
 import { setUserInfo } from '@/utils/user';
 import { toast } from 'sonner';
+import loginImage from '@/assets/login.png';
 
 const loginSchema = z.object({
   username: z.string().min(2, '用户名至少2个字符'),
@@ -166,59 +167,12 @@ export default function LoginPage() {
                 </FieldGroup>
               </form>
             </Form>
-            <div className="bg-muted relative hidden md:block">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-muted-foreground/50 text-center p-8">
-                  <svg
-                    className="mx-auto h-64 w-64 dark:brightness-[0.2] dark:grayscale"
-                    fill="none"
-                    viewBox="0 0 400 400"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <defs>
-                      <linearGradient id="login-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="currentColor" stopOpacity="0.1" />
-                        <stop offset="50%" stopColor="currentColor" stopOpacity="0.15" />
-                        <stop offset="100%" stopColor="currentColor" stopOpacity="0.2" />
-                      </linearGradient>
-                    </defs>
-                    <rect
-                      width="400"
-                      height="400"
-                      fill="url(#login-gradient)"
-                      rx="0"
-                    />
-                    <circle cx="200" cy="150" r="60" fill="currentColor" fillOpacity="0.1" />
-                    <circle cx="200" cy="250" r="80" fill="currentColor" fillOpacity="0.08" />
-                    <text
-                      x="50%"
-                      y="50%"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="currentColor"
-                      fillOpacity="0.15"
-                      fontSize="32"
-                      fontWeight="bold"
-                      fontFamily="system-ui, sans-serif"
-                    >
-                      Charno
-                    </text>
-                    <text
-                      x="50%"
-                      y="60%"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="currentColor"
-                      fillOpacity="0.15"
-                      fontSize="24"
-                      fontWeight="600"
-                      fontFamily="system-ui, sans-serif"
-                    >
-                      Admin
-                    </text>
-                  </svg>
-                </div>
-              </div>
+            <div className="bg-muted relative hidden md:block overflow-hidden">
+              <img
+                src={loginImage}
+                alt="Login illustration"
+                className="absolute inset-0 h-full w-full object-cover scale-125"
+              />
             </div>
           </CardContent>
         </Card>

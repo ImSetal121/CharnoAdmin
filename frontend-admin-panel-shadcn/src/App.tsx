@@ -4,7 +4,7 @@ import LoginPage from '@/pages/Login';
 import MainLayout from '@/components/layout/MainLayout';
 import UsersPage from '@/pages/System/Users';
 import RolesPage from '@/pages/System/Roles';
-import AccountSettingsPage from '@/pages/AccountSettings';
+import SettingsPage from '@/pages/Settings';
 import DashboardPage from '@/pages/Dashboard';
 import './App.css';
 
@@ -18,7 +18,7 @@ function App() {
           <Route path="dashboard" element={<Navigate to="/system/users" replace />} />
           <Route path="system/users" element={<UsersPage />} />
           <Route path="system/roles" element={<RolesPage />} />
-          <Route path="account/settings" element={<AccountSettingsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
       <Toaster />

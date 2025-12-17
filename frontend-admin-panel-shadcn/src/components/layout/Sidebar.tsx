@@ -20,16 +20,16 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight, MoreVertical } from 'lucide-react';
+import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight, MoreVertical, PlusCircle, Mail } from 'lucide-react';
 import { getUserInfo, clearUserInfo } from '@/utils/user';
 import { removeToken } from '@/utils/request';
 import { logout } from '@/api/system/Logout';
@@ -90,7 +90,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
   };
 
   const handleAccountSettings = () => {
-    navigate('/account/settings');
+    navigate('/settings');
   };
 
   const getInitials = (name?: string) => {
@@ -132,6 +132,35 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarMenu>
+              <SidebarMenuItem className="flex items-center gap-2">
+                <SidebarMenuButton
+                  tooltip="快速创建"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+                  onClick={() => {
+                    // TODO: 实现快速创建功能
+                  }}
+                >
+                  <PlusCircle />
+                  <span>快速创建</span>
+                </SidebarMenuButton>
+                <Button
+                  size="icon"
+                  className="size-8 group-data-[collapsible=icon]:opacity-0"
+                  variant="outline"
+                  onClick={() => {
+                    // TODO: 实现邮件功能
+                  }}
+                >
+                  <Mail />
+                  <span className="sr-only">收件箱</span>
+                </Button>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         {menuItems.map((group) => {
           const GroupIcon = group.icon;
           const defaultOpen = isGroupOpen(group);
@@ -181,6 +210,24 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="设置"
+              onClick={handleAccountSettings}
+            >
+              <Settings />
+              <span>设置</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem className="mb-4">
+            <SidebarMenuButton
+              tooltip={theme === 'light' ? '切换到暗色模式' : '切换到亮色模式'}
+              onClick={handleThemeToggle}
+            >
+              {theme === 'light' ? <Moon /> : <Sun />}
+              <span>{theme === 'light' ? '切换到暗色模式' : '切换到亮色模式'}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
@@ -228,27 +275,6 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
                     </div>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={handleAccountSettings}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>账户设置</span>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleThemeToggle}>
-                  {theme === 'light' ? (
-                    <>
-                      <Moon className="mr-2 h-4 w-4" />
-                      <span>切换到暗色模式</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sun className="mr-2 h-4 w-4" />
-                      <span>切换到亮色模式</span>
-                    </>
-                  )}
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
