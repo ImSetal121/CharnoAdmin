@@ -3,6 +3,7 @@ import LoginPage from '@/pages/Login';
 import MainLayout from '@/components/Layout';
 import UsersPage from '@/pages/System/Users';
 import RolesPage from '@/pages/System/Roles';
+import AccountSettingsPage from '@/pages/AccountSettings';
 import '@arco-design/web-react/dist/css/arco.css';
 import './App.css';
 
@@ -15,6 +16,7 @@ function App() {
         <Route path="dashboard" element={<Navigate to="/system/users" replace />} />
         <Route path="system/users" element={<UsersPage />} />
         <Route path="system/roles" element={<RolesPage />} />
+        <Route path="account/settings" element={<AccountSettingsPage />} />
       </Route>
     </Routes>
   );

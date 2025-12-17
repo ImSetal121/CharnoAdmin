@@ -81,8 +81,7 @@ export default function Header({ onThemeChange, sidebarCollapsed = false, onSide
 
   // 处理账户设置
   const handleAccountSettings = () => {
-    // TODO: 实现账户设置功能
-    console.log('账户设置');
+    navigate('/account/settings');
   };
 
   // 用户下拉菜单
