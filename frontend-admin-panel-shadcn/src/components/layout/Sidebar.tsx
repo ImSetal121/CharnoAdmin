@@ -12,6 +12,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   Collapsible,
@@ -19,16 +20,16 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Separator } from '@/components/ui/separator';
-import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight } from 'lucide-react';
+import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight, MoreVertical } from 'lucide-react';
 import { getUserInfo, clearUserInfo } from '@/utils/user';
 import { removeToken } from '@/utils/request';
 import { logout } from '@/api/system/Logout';
@@ -54,11 +55,14 @@ const menuItems = [
   },
 ];
 
-export function AppSidebar() {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar>;
+
+export function AppSidebar({ ...props }: AppSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const userInfo = getUserInfo();
   const theme = getTheme();
+  const { isMobile } = useSidebar();
 
   const handleMenuClick = (url: string) => {
     navigate(url);
@@ -103,18 +107,29 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="offcanvas" variant="inset" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <span className="text-sm font-bold">C</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold">Charno Admin.</span>
-            </div>
-          </div>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/system/users');
+                }}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                  <span className="text-sm font-bold">C</span>
+                </div>
+                <span className="text-base font-semibold">Charno Admin.</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         {menuItems.map((group) => {
@@ -164,52 +179,85 @@ export function AppSidebar() {
         })}
       </SidebarContent>
       <SidebarFooter>
-        <Separator className="mb-2" />
-        <div className="flex items-center gap-2 px-2 py-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start gap-2 h-auto p-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={userInfo?.avatarUrl} alt={userInfo?.nickname || '用户'} />
-                  <AvatarFallback>{getInitials(userInfo?.nickname || userInfo?.accountIdentifier)}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col items-start flex-1 min-w-0">
-                  <span className="text-sm font-medium truncate w-full">
-                    {userInfo?.nickname || userInfo?.accountIdentifier || '用户'}
-                  </span>
-                  <span className="text-xs text-muted-foreground truncate w-full">
-                    {userInfo?.roleCode || '未分配角色'}
-                  </span>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem onClick={handleAccountSettings}>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>账户设置</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleThemeToggle}>
-                {theme === 'light' ? (
-                  <>
-                    <Moon className="mr-2 h-4 w-4" />
-                    <span>切换到暗色模式</span>
-                  </>
-                ) : (
-                  <>
-                    <Sun className="mr-2 h-4 w-4" />
-                    <span>切换到亮色模式</span>
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>退出登录</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    <AvatarImage src={userInfo?.avatarUrl} alt={userInfo?.nickname || '用户'} />
+                    <AvatarFallback className="rounded-lg">
+                      {getInitials(userInfo?.nickname || userInfo?.accountIdentifier)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {userInfo?.nickname || userInfo?.accountIdentifier || '用户'}
+                    </span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {userInfo?.roleCode || '未分配角色'}
+                    </span>
+                  </div>
+                  <MoreVertical className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side={isMobile ? 'bottom' : 'right'}
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarImage src={userInfo?.avatarUrl} alt={userInfo?.nickname || '用户'} />
+                      <AvatarFallback className="rounded-lg">
+                        {getInitials(userInfo?.nickname || userInfo?.accountIdentifier)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-medium">
+                        {userInfo?.nickname || userInfo?.accountIdentifier || '用户'}
+                      </span>
+                      <span className="text-muted-foreground truncate text-xs">
+                        {userInfo?.roleCode || '未分配角色'}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={handleAccountSettings}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>账户设置</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleThemeToggle}>
+                  {theme === 'light' ? (
+                    <>
+                      <Moon className="mr-2 h-4 w-4" />
+                      <span>切换到暗色模式</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sun className="mr-2 h-4 w-4" />
+                      <span>切换到亮色模式</span>
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>退出登录</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

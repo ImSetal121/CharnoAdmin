@@ -129,9 +129,9 @@ export default function UsersPage() {
         page: currentPage - 1,
         size: pageSize,
       };
-      const data = await queryUsersWithPage(params);
-      setUsers(data);
-      setTotal(data.length);
+      const result = await queryUsersWithPage(params);
+      setUsers(result.data);
+      setTotal(result.total);
     } catch (error: any) {
       toast.error(error.message || '加载用户列表失败');
     } finally {

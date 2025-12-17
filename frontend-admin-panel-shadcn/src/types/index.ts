@@ -4,6 +4,21 @@
  */
 
 /**
+ * 分页查询结果
+ * 对应后端 PageResult
+ */
+export interface PageResult<T> {
+  /** 数据列表 */
+  data: T[];
+  /** 总记录数 */
+  total: number;
+  /** 当前页码（从0开始） */
+  page: number;
+  /** 每页大小 */
+  size: number;
+}
+
+/**
  * 系统用户实体
  * 对应后端 SysUser
  */

@@ -4,7 +4,7 @@
  */
 
 import { get, post, put, del } from '@/utils/request';
-import type { SysRole, RoleQueryParams, RolePageQueryParams } from '@/types';
+import type { SysRole, RoleQueryParams, RolePageQueryParams, PageResult } from '@/types';
 
 /**
  * 创建角色
@@ -67,9 +67,9 @@ export const queryRoles = (params?: RoleQueryParams): Promise<SysRole[]> => {
  * GET /api/admin/roles/query/page
  * 
  * @param params 查询参数（包含分页参数）
- * @returns 角色列表
+ * @returns 分页结果
  */
-export const queryRolesWithPage = (params?: RolePageQueryParams): Promise<SysRole[]> => {
-  return get<SysRole[]>('/api/admin/roles/query/page', params);
+export const queryRolesWithPage = (params?: RolePageQueryParams): Promise<PageResult<SysRole>> => {
+  return get<PageResult<SysRole>>('/api/admin/roles/query/page', params);
 };
 

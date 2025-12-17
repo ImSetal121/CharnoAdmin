@@ -2,6 +2,7 @@ package org.charno.system.controller;
 
 import org.charno.commonsecurity.annotation.RequiresRole;
 import org.charno.commonweb.response.ApiResponse;
+import org.charno.commonweb.response.PageResult;
 import org.charno.systementity.entity.SysRole;
 import org.charno.systementity.repository.SysRoleRepository;
 import org.charno.system.service.AdminSysRoleService;
@@ -150,7 +151,7 @@ public class AdminSysRoleController {
      * @return 响应结果
      */
     @GetMapping("/query/page")
-    public Mono<ApiResponse<List<SysRole>>> queryWithPage(
+    public Mono<ApiResponse<PageResult<SysRole>>> queryWithPage(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "0") int page,
@@ -160,7 +161,6 @@ public class AdminSysRoleController {
         Pageable pageable = buildPageable(page, size, sort);
         
         return adminRoleService.queryWithPage(code, name, pageable)
-            .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("分页查询角色失败：" + e.getMessage())));
     }

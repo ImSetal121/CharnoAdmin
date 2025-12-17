@@ -4,7 +4,7 @@
  */
 
 import { get, post, put, del } from '@/utils/request';
-import type { SysUser, UserQueryParams, UserPageQueryParams } from '@/types';
+import type { SysUser, UserQueryParams, UserPageQueryParams, PageResult } from '@/types';
 
 /**
  * 创建用户
@@ -67,9 +67,9 @@ export const queryUsers = (params?: UserQueryParams): Promise<SysUser[]> => {
  * GET /api/admin/users/query/page
  * 
  * @param params 查询参数（包含分页参数）
- * @returns 用户列表
+ * @returns 分页结果
  */
-export const queryUsersWithPage = (params?: UserPageQueryParams): Promise<SysUser[]> => {
-  return get<SysUser[]>('/api/admin/users/query/page', params);
+export const queryUsersWithPage = (params?: UserPageQueryParams): Promise<PageResult<SysUser>> => {
+  return get<PageResult<SysUser>>('/api/admin/users/query/page', params);
 };
 

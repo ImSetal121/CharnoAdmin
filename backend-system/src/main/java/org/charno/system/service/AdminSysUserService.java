@@ -1,5 +1,6 @@
 package org.charno.system.service;
 
+import org.charno.commonweb.response.PageResult;
 import org.charno.systementity.entity.SysUser;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
@@ -7,6 +8,7 @@ import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * 系统用户管理业务服务
@@ -50,14 +52,30 @@ public class AdminSysUserService {
      * @param accountIdentifier 账号标识符（可选，支持模糊查询）
      * @param nickname 昵称（可选，支持模糊查询）
      * @param pageable 分页参数
-     * @return Flux<SysUser> 用户列表
+     * @return Mono<PageResult<SysUser>> 分页结果
      */
-    public Flux<SysUser> queryWithPage(String status, String roleCode, String accountType,
-                                       String accountIdentifier, String nickname, Pageable pageable) {
+    public Mono<PageResult<SysUser>> queryWithPage(String status, String roleCode, String accountType,
+                                                    String accountIdentifier, String nickname, Pageable pageable) {
         Criteria criteria = buildCriteria(status, roleCode, accountType, accountIdentifier, nickname);
-        return template.select(SysUser.class)
-            .matching(Query.query(criteria).with(pageable))
-            .all();
+        Query query = Query.query(criteria);
+        
+        // 获取总数
+        Mono<Long> countMono = template.count(query, SysUser.class);
+        
+        // 获取分页数据
+        Mono<java.util.List<SysUser>> dataMono = template.select(SysUser.class)
+            .matching(query.with(pageable))
+            .all()
+            .collectList();
+        
+        // 组合成分页结果
+        return Mono.zip(countMono, dataMono)
+            .map(tuple -> PageResult.<SysUser>builder()
+                .data(tuple.getT2())
+                .total(tuple.getT1())
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .build());
     }
 
     /**

@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -111,6 +112,74 @@ class BackendStartApplicationTests {
                             && "超级管理员".equals(savedUser.getNickname())
                             && savedUser.getRoleCode() != null;
                 })
+                .verifyComplete();
+    }
+
+    /**
+     * 测试循环创建20个USER角色代码的用户
+     */
+    @Test
+    void testCreate20UsersWithUserRole() {
+        // 验证USER角色是否存在
+        Mono<SysRole> roleMono = template.select(SysRole.class)
+                .matching(Query.query(Criteria.where("code").is("USER")))
+                .one();
+
+        // 创建20个用户的Flux
+        Flux<SysUser> createUsersFlux = roleMono.flatMapMany(role -> {
+            // 使用Flux.range创建1到20的序列
+            return Flux.range(1, 20)
+                    .flatMap(index -> {
+                        // 创建用户对象
+                        SysUser user = new SysUser();
+                        UUID userId = UUID.randomUUID();
+                        user.setId(userId);
+                        user.setStatus("ENABLED");
+                        user.setAccountType("USERNAME");
+                        user.setAccountIdentifier("user" + index);
+                        
+                        // 设置角色代码为USER
+                        user.setRoleCode(role.getCode());
+                        
+                        // 加密密码（所有用户使用相同密码）
+                        String rawPassword = "123456";
+                        String passwordHash = passwordUtil.encode(rawPassword);
+                        user.setPasswordHash(passwordHash);
+                        user.setPasswordAlgoVersion(1);
+                        user.setPasswordChangedAt(OffsetDateTime.now());
+                        
+                        // 设置用户基本信息
+                        user.setNickname("用户" + index);
+                        user.setGender("UNKNOWN");
+                        user.setLocale("zh-CN");
+                        user.setTimezone("Asia/Shanghai");
+                        
+                        // 设置时间戳
+                        OffsetDateTime now = OffsetDateTime.now();
+                        user.setCreatedAt(now);
+                        user.setUpdatedAt(now);
+                        
+                        // 保存用户
+                        return userRepository.save(user);
+                    });
+        });
+
+        // 验证创建了20个用户，且每个用户的角色代码都是USER
+        StepVerifier.create(createUsersFlux)
+                .expectNextCount(20)
+                .verifyComplete();
+        
+        // 验证所有用户都已正确创建
+        Flux<SysUser> verifyUsersFlux = template.select(SysUser.class)
+                .matching(Query.query(
+                        Criteria.where("accountType").is("USERNAME")
+                                .and(Criteria.where("accountIdentifier").like("user%"))
+                                .and(Criteria.where("roleCode").is("USER"))
+                ))
+                .all();
+
+        StepVerifier.create(verifyUsersFlux)
+                .expectNextCount(20)
                 .verifyComplete();
     }
 

@@ -96,9 +96,9 @@ export default function RolesPage() {
         page: currentPage - 1,
         size: pageSize,
       };
-      const data = await queryRolesWithPage(params);
-      setRoles(data);
-      setTotal(data.length);
+      const result = await queryRolesWithPage(params);
+      setRoles(result.data);
+      setTotal(result.total);
     } catch (error: any) {
       toast.error(error.message || '加载角色列表失败');
     } finally {

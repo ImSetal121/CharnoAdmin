@@ -2,6 +2,7 @@ package org.charno.system.controller;
 
 import org.charno.commonsecurity.annotation.RequiresRole;
 import org.charno.commonweb.response.ApiResponse;
+import org.charno.commonweb.response.PageResult;
 import org.charno.systementity.entity.SysUser;
 import org.charno.systementity.repository.SysUserRepository;
 import org.charno.system.service.AdminSysUserService;
@@ -181,7 +182,7 @@ public class AdminSysUserController {
      * @return 响应结果
      */
     @GetMapping("/query/page")
-    public Mono<ApiResponse<List<SysUser>>> queryWithPage(
+    public Mono<ApiResponse<PageResult<SysUser>>> queryWithPage(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String roleCode,
             @RequestParam(required = false) String accountType,
@@ -194,7 +195,6 @@ public class AdminSysUserController {
         Pageable pageable = buildPageable(page, size, sort);
         
         return adminUserService.queryWithPage(status, roleCode, accountType, accountIdentifier, nickname, pageable)
-            .collectList()
             .map(ApiResponse::success)
             .onErrorResume(e -> Mono.just(ApiResponse.fail("分页查询用户失败：" + e.getMessage())));
     }
