@@ -29,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { SortableTableHead } from '@/components/ui/sortable-table-head';
 import {
   Dialog,
   DialogContent,
@@ -101,6 +102,8 @@ export default function UsersPage() {
     page: 0,
     size: 10,
   });
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
 
   const form = useForm<SysUser>({
     resolver: zodResolver(userSchema),
@@ -120,14 +123,36 @@ export default function UsersPage() {
     defaultValues: {},
   });
 
+  // 处理排序点击
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // 同一字段：asc -> desc -> null
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortField(null);
+        setSortDirection(null);
+      }
+    } else {
+      // 不同字段：设置为 asc
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   // 加载用户列表
   const loadUsers = async () => {
     setLoading(true);
     try {
+      const sortParam = sortField && sortDirection 
+        ? `${sortField},${sortDirection}` 
+        : undefined;
+      
       const params: UserPageQueryParams = {
         ...queryParams,
         page: currentPage - 1,
         size: pageSize,
+        sort: sortParam,
       };
       const result = await queryUsersWithPage(params);
       setUsers(result.data);
@@ -152,7 +177,7 @@ export default function UsersPage() {
   useEffect(() => {
     loadUsers();
     loadRoles();
-  }, [currentPage, pageSize, queryParams]);
+  }, [currentPage, pageSize, queryParams, sortField, sortDirection]);
 
   // 处理搜索
   const handleSearch = (values: UserPageQueryParams) => {
@@ -404,15 +429,78 @@ export default function UsersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>账号标识</TableHead>
-                  <TableHead>账号类型</TableHead>
-                  <TableHead>昵称</TableHead>
-                  <TableHead>性别</TableHead>
-                  <TableHead>角色代码</TableHead>
-                  <TableHead>状态</TableHead>
-                  <TableHead>最后登录时间</TableHead>
-                  <TableHead>创建时间</TableHead>
+                  <SortableTableHead
+                    field="id"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    ID
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="accountIdentifier"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    账号标识
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="accountType"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    账号类型
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="nickname"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    昵称
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="gender"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    性别
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="roleCode"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    角色代码
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="status"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    状态
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="lastLoginAt"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    最后登录时间
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="createdAt"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    创建时间
+                  </SortableTableHead>
                   <TableHead className="text-right">操作</TableHead>
                 </TableRow>
               </TableHeader>

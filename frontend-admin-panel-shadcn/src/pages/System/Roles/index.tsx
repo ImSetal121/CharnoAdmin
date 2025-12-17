@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { SortableTableHead } from '@/components/ui/sortable-table-head';
 import {
   Dialog,
   DialogContent,
@@ -77,6 +78,8 @@ export default function RolesPage() {
     page: 0,
     size: 10,
   });
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
 
   const form = useForm<SysRole>({
     resolver: zodResolver(roleSchema),
@@ -87,14 +90,36 @@ export default function RolesPage() {
     defaultValues: {},
   });
 
+  // 处理排序点击
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // 同一字段：asc -> desc -> null
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortField(null);
+        setSortDirection(null);
+      }
+    } else {
+      // 不同字段：设置为 asc
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
   // 加载角色列表
   const loadRoles = async () => {
     setLoading(true);
     try {
+      const sortParam = sortField && sortDirection 
+        ? `${sortField},${sortDirection}` 
+        : undefined;
+      
       const params: RolePageQueryParams = {
         ...queryParams,
         page: currentPage - 1,
         size: pageSize,
+        sort: sortParam,
       };
       const result = await queryRolesWithPage(params);
       setRoles(result.data);
@@ -108,7 +133,7 @@ export default function RolesPage() {
 
   useEffect(() => {
     loadRoles();
-  }, [currentPage, pageSize, queryParams]);
+  }, [currentPage, pageSize, queryParams, sortField, sortDirection]);
 
   // 处理搜索
   const handleSearch = (values: RolePageQueryParams) => {
@@ -258,10 +283,31 @@ export default function RolesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>角色代码</TableHead>
-                  <TableHead>角色名称</TableHead>
+                  <SortableTableHead
+                    field="code"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    角色代码
+                  </SortableTableHead>
+                  <SortableTableHead
+                    field="name"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    角色名称
+                  </SortableTableHead>
                   <TableHead>描述</TableHead>
-                  <TableHead>创建时间</TableHead>
+                  <SortableTableHead
+                    field="createdAt"
+                    sortField={sortField}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                  >
+                    创建时间
+                  </SortableTableHead>
                   <TableHead className="text-right">操作</TableHead>
                 </TableRow>
               </TableHeader>

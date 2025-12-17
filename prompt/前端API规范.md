@@ -213,6 +213,38 @@ export * from './system';
 
 ## 使用规范
 
+### 分页查询中的排序参数
+
+**排序参数使用：**
+- `sort` 参数用于指定排序字段和方向
+- 格式：`字段名,asc` 或 `字段名,desc`，如 `createdAt,desc`
+- 排序是对所有符合查询条件的数据进行排序，然后进行分页（不是对单页数据排序）
+- 字段名必须与后端实体类的字段名一致（注意大小写和驼峰命名）
+- 如果 `sort` 参数为空或未传递，则使用默认排序（按 `createdAt` 降序）
+
+**示例：**
+```typescript
+// 按创建时间降序排序
+const result = await queryUsersWithPage({
+  page: 0,
+  size: 10,
+  sort: 'createdAt,desc'
+});
+
+// 按昵称升序排序
+const result = await queryUsersWithPage({
+  page: 0,
+  size: 10,
+  sort: 'nickname,asc'
+});
+
+// 不指定排序（使用默认排序）
+const result = await queryUsersWithPage({
+  page: 0,
+  size: 10
+});
+```
+
 ### 导入方式
 
 **推荐使用包内直接导入：**
@@ -346,6 +378,10 @@ export const queryUsers = (params?: UserQueryParams): Promise<SysUser[]> => {
  * GET /api/admin/users/query/page
  * 
  * @param params 查询参数（包含分页参数）
+ * @param params.sort 排序参数（可选），格式：`字段名,asc` 或 `字段名,desc`，如 `createdAt,desc`
+ *   - 排序是对所有符合查询条件的数据进行排序，然后进行分页（不是对单页数据排序）
+ *   - 字段名必须与后端实体类的字段名一致（注意大小写和驼峰命名）
+ *   - 如果 sort 参数为空，则使用默认排序（按 createdAt 降序）
  * @returns 分页结果
  */
 export const queryUsersWithPage = (params?: UserPageQueryParams): Promise<PageResult<SysUser>> => {
