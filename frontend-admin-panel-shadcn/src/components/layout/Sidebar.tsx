@@ -161,7 +161,7 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup className="!mb-0 !pb-0">
+        <SidebarGroup className="!pb-0">
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -176,12 +176,18 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {menuItems.map((group) => {
+        {menuItems.map((group, index) => {
           const GroupIcon = group.icon;
           const defaultOpen = isGroupOpen(group);
+          const isLast = index === menuItems.length - 1;
+          
+          // 统一间距：所有 menuItems 移除顶部 padding，除了最后一个，其他都移除底部 padding
+          const spacingClass = isLast 
+            ? '!pt-0' 
+            : '!pt-0 !pb-0';
           
           return (
-            <SidebarGroup key={group.title} className="!mt-0 !pt-0">
+            <SidebarGroup key={group.title} className={spacingClass}>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <Collapsible asChild defaultOpen={defaultOpen}>
