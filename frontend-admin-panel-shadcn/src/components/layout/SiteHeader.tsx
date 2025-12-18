@@ -4,6 +4,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Clock } from '@/components/motion-primitives/clock';
 
 const pageTitles: Record<string, string> = {
+  '/home': '首页',
   '/system/users': '用户管理',
   '/system/roles': '角色管理',
   '/settings': '设置',

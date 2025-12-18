@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight, MoreVertical, PlusCircle, Mail } from 'lucide-react';
+import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight, MoreVertical, PlusCircle, Mail, Home } from 'lucide-react';
 import { getUserInfo, clearUserInfo } from '@/utils/user';
 import { removeToken } from '@/utils/request';
 import { logout } from '@/api/system/Logout';
@@ -161,12 +161,27 @@ export function AppSidebar({ ...props }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        <SidebarGroup className="!mb-0 !pb-0">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location.pathname === '/home' || location.pathname === '/'}
+                  onClick={() => handleMenuClick('/home')}
+                >
+                  <Home />
+                  <span>首页</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         {menuItems.map((group) => {
           const GroupIcon = group.icon;
           const defaultOpen = isGroupOpen(group);
           
           return (
-            <SidebarGroup key={group.title}>
+            <SidebarGroup key={group.title} className="!mt-0 !pt-0">
               <SidebarGroupContent>
                 <SidebarMenu>
                   <Collapsible asChild defaultOpen={defaultOpen}>

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import LoginPage from '@/pages/Login';
 import MainLayout from '@/components/layout/MainLayout';
+import HomePage from '@/pages/Home';
 import UsersPage from '@/pages/System/Users';
 import RolesPage from '@/pages/System/Roles';
 import SettingsPage from '@/pages/Settings';
@@ -15,6 +16,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Navigate to="/system/users" replace />} />
+          <Route path="home" element={<HomePage />} />
           <Route path="dashboard" element={<Navigate to="/system/users" replace />} />
           <Route path="system/users" element={<UsersPage />} />
           <Route path="system/roles" element={<RolesPage />} />
