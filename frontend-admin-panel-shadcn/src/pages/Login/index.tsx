@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,6 +26,7 @@ import { setUserInfo } from '@/utils/user';
 import { toast } from 'sonner';
 import loginImage from '@/assets/login.png';
 import { TextScramble } from '@/components/motion-primitives/text-scramble';
+import { getAnimationEnabled } from '@/utils/animation';
 
 const loginSchema = z.object({
   username: z.string().min(2, '用户名至少2个字符'),
@@ -35,6 +36,20 @@ const loginSchema = z.object({
 export default function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [animationEnabled, setAnimationEnabled] = useState(getAnimationEnabled());
+
+  // 监听动画设置变化
+  useEffect(() => {
+    const handleAnimationChange = () => {
+      setAnimationEnabled(getAnimationEnabled());
+    };
+    window.addEventListener('storage', handleAnimationChange);
+    window.addEventListener('animationchange', handleAnimationChange);
+    return () => {
+      window.removeEventListener('storage', handleAnimationChange);
+      window.removeEventListener('animationchange', handleAnimationChange);
+    };
+  }, []);
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
@@ -75,6 +90,7 @@ export default function LoginPage() {
                       className="text-2xl font-bold"
                       duration={1.2}
                       speed={0.03}
+                      trigger={animationEnabled}
                     >
                       欢迎回来
                     </TextScramble>
@@ -83,6 +99,7 @@ export default function LoginPage() {
                       className="text-muted-foreground text-balance"
                       duration={1.5}
                       speed={0.04}
+                      trigger={animationEnabled}
                     >
                       登录到您的 Charno Admin 账户
                     </TextScramble>
@@ -93,6 +110,7 @@ export default function LoginPage() {
                         as="span"
                         duration={1.0}
                         speed={0.04}
+                        trigger={animationEnabled}
                       >
                         用户名
                       </TextScramble>
@@ -122,6 +140,7 @@ export default function LoginPage() {
                           as="span"
                           duration={1.0}
                           speed={0.04}
+                          trigger={animationEnabled}
                         >
                           密码
                         </TextScramble>
@@ -138,6 +157,7 @@ export default function LoginPage() {
                           as="span"
                           duration={0.8}
                           speed={0.05}
+                          trigger={animationEnabled}
                         >
                           忘记密码？
                         </TextScramble>
@@ -169,6 +189,7 @@ export default function LoginPage() {
                           as="span"
                           duration={0.6}
                           speed={0.05}
+                          trigger={animationEnabled}
                         >
                           登录中...
                         </TextScramble>
@@ -177,6 +198,7 @@ export default function LoginPage() {
                           as="span"
                           duration={0.8}
                           speed={0.04}
+                          trigger={animationEnabled}
                         >
                           登录
                         </TextScramble>
@@ -188,6 +210,7 @@ export default function LoginPage() {
                       as="span"
                       duration={1.0}
                       speed={0.04}
+                      trigger={animationEnabled}
                     >
                       或使用以下方式登录
                     </TextScramble>
