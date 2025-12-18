@@ -10,14 +10,14 @@ import chromeLogoLight from '@/assets/company-logo-light/google-chrome-3.svg';
 import netflixLogoLight from '@/assets/company-logo-light/netflix-3.svg';
 import xboxLogoLight from '@/assets/company-logo-light/xbox-2.svg';
 import cloudflareLogoLight from '@/assets/company-logo-light/cloudflare-1.svg';
-import xLogoLight from '@/assets/company-logo-light/x-2.svg';
+import nintendoLogoLight from '@/assets/company-logo-light/nintendo-2.svg';
 // Dark theme logos
 import appleMusicLogoDark from '@/assets/company-logo-dark/apple-music-3.svg';
 import chromeLogoDark from '@/assets/company-logo-dark/google-chrome-3.svg';
 import netflixLogoDark from '@/assets/company-logo-dark/netflix-3.svg';
 import xboxLogoDark from '@/assets/company-logo-dark/xbox-2.svg';
 import cloudflareLogoDark from '@/assets/company-logo-dark/cloudflare-1.svg';
-import xLogoDark from '@/assets/company-logo-dark/x-2.svg';
+import nintendoLogoDark from '@/assets/company-logo-dark/nintendo-2.svg';
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export default function HomePage() {
   const netflixLogo = theme === 'dark' ? netflixLogoDark : netflixLogoLight;
   const xboxLogo = theme === 'dark' ? xboxLogoDark : xboxLogoLight;
   const cloudflareLogo = theme === 'dark' ? cloudflareLogoDark : cloudflareLogoLight;
-  const xLogo = theme === 'dark' ? xLogoDark : xLogoLight;
+  const nintendoLogo = theme === 'dark' ? nintendoLogoDark : nintendoLogoLight;
 
   return (
     <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center space-y-12 w-full">
@@ -99,8 +99,8 @@ export default function HomePage() {
             className="h-[120px] w-auto max-w-[200px] object-contain"
           />
           <img
-            src={xLogo}
-            alt="X logo"
+            src={nintendoLogo}
+            alt="Nintendo logo"
             className="h-[120px] w-auto max-w-[200px] object-contain"
           />
           </InfiniteSlider>
