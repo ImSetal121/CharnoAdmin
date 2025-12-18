@@ -53,6 +53,7 @@ public class AuthenticationFilter implements WebFilter {
 
         // 从请求头中提取Token
         String token = extractToken(request);
+        log.debug("Request method: {}, URI: {}, Has credentials: {}", request.getMethod(), request.getURI(), token != null && !token.isEmpty());
 
         // 如果没有Token，直接放行（不添加用户信息）
         if (token == null || token.isEmpty()) {
