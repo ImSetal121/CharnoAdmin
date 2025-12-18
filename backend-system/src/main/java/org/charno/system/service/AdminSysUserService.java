@@ -55,7 +55,7 @@ public class AdminSysUserService {
      * @return Mono<PageResult<SysUser>> 分页结果
      */
     public Mono<PageResult<SysUser>> queryWithPage(String status, String roleCode, String accountType,
-                                                    String accountIdentifier, String nickname, Pageable pageable) {
+                                       String accountIdentifier, String nickname, Pageable pageable) {
         Criteria criteria = buildCriteria(status, roleCode, accountType, accountIdentifier, nickname);
         Query query = Query.query(criteria);
         

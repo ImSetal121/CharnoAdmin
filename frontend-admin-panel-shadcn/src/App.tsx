@@ -15,7 +15,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/system/users" replace />} />
+          <Route index element={<Navigate to="/home" replace />} />
           <Route path="home" element={<HomePage />} />
           <Route path="dashboard" element={<Navigate to="/system/users" replace />} />
           <Route path="system/users" element={<UsersPage />} />

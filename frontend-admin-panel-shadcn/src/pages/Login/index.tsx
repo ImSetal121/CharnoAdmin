@@ -68,7 +68,7 @@ export default function LoginPage() {
         setUserInfo(result.user);
       }
       toast.success('登录成功');
-      navigate('/system/users');
+      navigate('/home');
     } catch (error: any) {
       toast.error(error.message || '登录失败，请检查用户名和密码');
     } finally {
