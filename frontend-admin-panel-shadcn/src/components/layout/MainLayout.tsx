@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from './Sidebar';
 import { SiteHeader } from './SiteHeader';
@@ -8,6 +9,7 @@ import { getTheme } from '@/utils/theme';
 
 export default function MainLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 监听主题变化
   useEffect(() => {
@@ -55,7 +57,18 @@ export default function MainLayout() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:px-6 md:py-6">
-              <Outlet />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  className="w-full"
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
