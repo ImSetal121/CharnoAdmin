@@ -6,7 +6,6 @@ import HomePage from '@/pages/Home';
 import UsersPage from '@/pages/System/Users';
 import RolesPage from '@/pages/System/Roles';
 import SettingsPage from '@/pages/Settings';
-import DashboardPage from '@/pages/Dashboard';
 import './App.css';
 
 function App() {

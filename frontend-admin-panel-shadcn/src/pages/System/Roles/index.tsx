@@ -73,6 +73,8 @@ const roleSchema = z.object({
   description: z.string().optional(),
 });
 
+type RoleFormData = z.infer<typeof roleSchema>;
+
 export default function RolesPage() {
   const [roles, setRoles] = useState<SysRole[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,7 +91,7 @@ export default function RolesPage() {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
 
-  const form = useForm<SysRole>({
+  const form = useForm<RoleFormData>({
     resolver: zodResolver(roleSchema),
     defaultValues: {},
   });
@@ -183,13 +185,13 @@ export default function RolesPage() {
   };
 
   // 保存角色
-  const handleSave = async (values: SysRole) => {
+  const handleSave = async (values: RoleFormData) => {
     try {
       if (editingRole?.code) {
-        await updateRole(editingRole.code, values);
+        await updateRole(editingRole.code, values as SysRole);
         toast.success('更新角色成功');
       } else {
-        await createRole(values);
+        await createRole(values as SysRole);
         toast.success('创建角色成功');
       }
       handleCloseModal();

@@ -87,6 +87,8 @@ const registerSchema = z.object({
   nickname: z.string().min(1, '昵称不能为空'),
 });
 
+type UserFormData = z.infer<typeof userSchema>;
+
 export default function UsersPage() {
   const [users, setUsers] = useState<SysUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -105,7 +107,7 @@ export default function UsersPage() {
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc' | null>(null);
 
-  const form = useForm<SysUser>({
+  const form = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {},
   });
@@ -219,13 +221,13 @@ export default function UsersPage() {
   };
 
   // 保存用户
-  const handleSave = async (values: SysUser) => {
+  const handleSave = async (values: UserFormData) => {
     try {
       if (editingUser?.id) {
-        await updateUser(editingUser.id, values);
+        await updateUser(editingUser.id, values as SysUser);
         toast.success('更新用户成功');
       } else {
-        await createUser(values);
+        await createUser(values as SysUser);
         toast.success('创建用户成功');
       }
       handleCloseModal();

@@ -27,13 +27,18 @@ export interface RequestOptions extends RequestInit {
  * 请求错误类
  */
 export class RequestError extends Error {
+  code: number;
+  response?: Response;
+
   constructor(
-    public code: number,
-    public message: string,
-    public response?: Response
+    code: number,
+    message: string,
+    response?: Response
   ) {
     super(message);
     this.name = 'RequestError';
+    this.code = code;
+    this.response = response;
   }
 }
 
@@ -113,7 +118,7 @@ const requestInterceptor = (options: RequestOptions): RequestInit => {
  */
 const responseInterceptor = async <T>(
   response: Response,
-  options: RequestOptions
+  _options: RequestOptions
 ): Promise<T> => {
   // 处理HTTP错误状态码
   if (!response.ok) {

@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useEffect, useState, ReactNode, cloneElement, isValidElement } from 'react';
+import { useRef, useEffect, useState, cloneElement, isValidElement, type ReactNode } from 'react';
 import { motion, useMotionValue, useAnimationFrame } from 'motion/react';
 import { cn } from '@/lib/utils';
 
@@ -61,7 +61,7 @@ export function InfiniteSlider({
   }, [children, gap, direction, validChildren.length]);
 
   // 动画循环
-  useAnimationFrame((t, delta) => {
+  useAnimationFrame((_t, delta) => {
     if (direction !== 'horizontal' || contentWidth === 0) return;
 
     const currentSpeed = isHovered && speedOnHover !== undefined ? speedOnHover : speed;
@@ -112,7 +112,7 @@ export function InfiniteSlider({
           validChildren.map((child, childIndex) => {
             const key = `group-${groupIndex}-child-${childIndex}`;
             return isValidElement(child)
-              ? cloneElement(child, { key, ...child.props })
+              ? cloneElement(child, { key, ...(child.props as Record<string, unknown>) })
               : child;
           })
         )}
