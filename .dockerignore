@@ -1,0 +1,52 @@
+# Git 相关
+.git
+.gitignore
+.gitattributes
+
+# IDE 相关
+.idea
+.vscode
+*.iml
+*.swp
+*.swo
+*~
+
+# 构建产物
+target/
+**/target/
+*.jar
+*.war
+*.ear
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+.DS_Store
+
+# 文档
+*.md
+README.md
+LICENSE
+prompt/
+待办
+
+# 示例项目
+example/
+
+# 前端项目（后端构建时不需要）
+frontend-admin-panel-shadcn/
+
+# Docker 相关
+docker-compose.yml
+.dockerignore
+Dockerfile
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
