@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight, MoreVertical, PlusCircle, Mail, Home } from 'lucide-react';
+import { Users, UserCog, Moon, Sun, LogOut, Settings, ChevronRight, MoreVertical, PlusCircle, Mail, Home, Cog } from 'lucide-react';
 import { getUserInfo, clearUserInfo } from '@/utils/user';
 import { removeToken } from '@/utils/request';
 import { logout } from '@/api/system/Logout';
@@ -50,6 +50,11 @@ const menuItems = [
         title: '角色管理',
         url: '/system/roles',
         icon: UserCog,
+      },
+      {
+        title: '配置管理',
+        url: '/system/configs',
+        icon: Cog,
       },
     ],
   },

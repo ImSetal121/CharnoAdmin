@@ -26,7 +26,7 @@ import type { LoginRequest } from '@/types';
 import { setUserInfo } from '@/utils/user';
 import { toast } from 'sonner';
 import loginImage from '@/assets/login.png';
-import { TextScramble } from '@/components/motion-primitives/text-scramble';
+import { TextEffect } from '@/components/motion-primitives/text-effect';
 import { getAnimationEnabled } from '@/utils/animation';
 
 const loginSchema = z.object({
@@ -97,35 +97,35 @@ export default function LoginPage() {
                         className="flex flex-col gap-7"
                       >
                         <div className="flex flex-col items-center gap-2 text-center">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="h1"
                             className="text-2xl font-bold"
-                            duration={0.4}
-                            speed={0.01}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             欢迎回来
-                          </TextScramble>
-                          <TextScramble
+                          </TextEffect>
+                          <TextEffect
+                            per="word"
                             as="p"
                             className="text-muted-foreground text-balance"
-                            duration={0.4}
-                            speed={0.015}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             登录到您的 Charno Admin 账户
-                          </TextScramble>
+                          </TextEffect>
                         </div>
                         <Field>
                           <FieldLabel htmlFor="username">
-                            <TextScramble
+                            <TextEffect
+                              per="word"
                               as="span"
-                              duration={0.4}
-                              speed={0.015}
+                              preset="slide"
                               trigger={animationEnabled}
                             >
                               用户名
-                            </TextScramble>
+                            </TextEffect>
                           </FieldLabel>
                           <FormField
                             control={form.control}
@@ -148,14 +148,14 @@ export default function LoginPage() {
                         <Field>
                           <div className="flex items-center">
                             <FieldLabel htmlFor="password">
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.015}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 密码
-                              </TextScramble>
+                              </TextEffect>
                             </FieldLabel>
                             <a
                               href="#"
@@ -165,14 +165,14 @@ export default function LoginPage() {
                                 // TODO: 实现忘记密码功能
                               }}
                             >
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.02}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 忘记密码？
-                              </TextScramble>
+                              </TextEffect>
                             </a>
                           </div>
                           <FormField
@@ -197,35 +197,35 @@ export default function LoginPage() {
                         <Field>
                           <Button type="submit" className="w-full" disabled={loading}>
                             {loading ? (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.02}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录中...
-                              </TextScramble>
+                              </TextEffect>
                             ) : (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.015}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录
-                              </TextScramble>
+                              </TextEffect>
                             )}
                           </Button>
                         </Field>
                         <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="span"
-                            duration={0.4}
-                            speed={0.015}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             或使用以下方式登录
-                          </TextScramble>
+                          </TextEffect>
                         </FieldSeparator>
                         <Field className="grid grid-cols-3 gap-4">
                           <Button
@@ -282,15 +282,15 @@ export default function LoginPage() {
                         className="flex flex-col gap-7"
                       >
                         <div className="flex flex-col items-center gap-4 text-center">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="h1"
                             className="text-xl font-semibold"
-                            duration={0.4}
-                            speed={0.01}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             使用Apple ID登录Charno Admin
-                          </TextScramble>
+                          </TextEffect>
                           <div className="flex justify-center py-4">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-16 w-16">
                               <path
@@ -303,35 +303,35 @@ export default function LoginPage() {
                         <Field>
                           <Button type="button" className="w-full" disabled={loading}>
                             {loading ? (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.02}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录中...
-                              </TextScramble>
+                              </TextEffect>
                             ) : (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.015}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录
-                              </TextScramble>
+                              </TextEffect>
                             )}
                           </Button>
                         </Field>
                         <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="span"
-                            duration={0.4}
-                            speed={0.015}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             或使用以下方式登录
-                          </TextScramble>
+                          </TextEffect>
                         </FieldSeparator>
                         <Field className="grid grid-cols-3 gap-4">
                           <Button
@@ -386,15 +386,15 @@ export default function LoginPage() {
                         className="flex flex-col gap-7"
                       >
                         <div className="flex flex-col items-center gap-4 text-center">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="h1"
                             className="text-xl font-semibold"
-                            duration={0.4}
-                            speed={0.01}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             使用Google账户登录Charno Admin
-                          </TextScramble>
+                          </TextEffect>
                           <div className="flex justify-center py-4">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-16 w-16">
                               <path
@@ -407,35 +407,35 @@ export default function LoginPage() {
                         <Field>
                           <Button type="button" className="w-full" disabled={loading}>
                             {loading ? (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.02}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录中...
-                              </TextScramble>
+                              </TextEffect>
                             ) : (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.015}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录
-                              </TextScramble>
+                              </TextEffect>
                             )}
                           </Button>
                         </Field>
                         <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="span"
-                            duration={0.4}
-                            speed={0.015}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             或使用以下方式登录
-                          </TextScramble>
+                          </TextEffect>
                         </FieldSeparator>
                         <Field className="grid grid-cols-3 gap-4">
                           <Button
@@ -490,15 +490,15 @@ export default function LoginPage() {
                         className="flex flex-col gap-7"
                       >
                         <div className="flex flex-col items-center gap-4 text-center">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="h1"
                             className="text-xl font-semibold"
-                            duration={0.4}
-                            speed={0.01}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             使用Meta账户登录Charno Admin
-                          </TextScramble>
+                          </TextEffect>
                           <div className="flex justify-center py-4">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-16 w-16">
                               <path
@@ -511,35 +511,35 @@ export default function LoginPage() {
                         <Field>
                           <Button type="button" className="w-full" disabled={loading}>
                             {loading ? (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.02}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录中...
-                              </TextScramble>
+                              </TextEffect>
                             ) : (
-                              <TextScramble
+                              <TextEffect
+                                per="word"
                                 as="span"
-                                duration={0.4}
-                                speed={0.015}
+                                preset="slide"
                                 trigger={animationEnabled}
                               >
                                 登录
-                              </TextScramble>
+                              </TextEffect>
                             )}
                           </Button>
                         </Field>
                         <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                          <TextScramble
+                          <TextEffect
+                            per="word"
                             as="span"
-                            duration={0.4}
-                            speed={0.015}
+                            preset="slide"
                             trigger={animationEnabled}
                           >
                             或使用以下方式登录
-                          </TextScramble>
+                          </TextEffect>
                         </FieldSeparator>
                         <Field className="grid grid-cols-3 gap-4">
                           <Button

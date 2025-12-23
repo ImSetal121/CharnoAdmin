@@ -160,3 +160,38 @@ export interface RolePageQueryParams extends RoleQueryParams {
   sort?: string;
 }
 
+/**
+ * 系统配置实体
+ * 对应后端 SysConfig
+ */
+export interface SysConfig {
+  /** 配置键（主键，唯一标识） */
+  key?: string;
+  /** 配置值 */
+  value?: string;
+  /** 配置描述 */
+  description?: string;
+}
+
+/**
+ * 配置查询参数
+ */
+export interface ConfigQueryParams {
+  /** 配置键（可选，支持模糊查询） */
+  key?: string;
+  /** 配置值（可选，支持模糊查询） */
+  value?: string;
+}
+
+/**
+ * 配置分页查询参数
+ */
+export interface ConfigPageQueryParams extends ConfigQueryParams {
+  /** 页码（从0开始，默认0） */
+  page?: number;
+  /** 每页大小（默认10） */
+  size?: number;
+  /** 排序字段（可选，格式：field,asc/desc，默认按key升序） */
+  sort?: string;
+}
+

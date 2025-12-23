@@ -5,6 +5,7 @@ import MainLayout from '@/components/layout/MainLayout';
 import HomePage from '@/pages/Home';
 import UsersPage from '@/pages/System/Users';
 import RolesPage from '@/pages/System/Roles';
+import ConfigsPage from '@/pages/System/Configs';
 import SettingsPage from '@/pages/Settings';
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="dashboard" element={<Navigate to="/system/users" replace />} />
           <Route path="system/users" element={<UsersPage />} />
           <Route path="system/roles" element={<RolesPage />} />
+          <Route path="system/configs" element={<ConfigsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
