@@ -1,5 +1,6 @@
 package org.charno.commonsecurity.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.charno.commonweb.response.ApiResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,11 +19,17 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Spring Security 配置类
  * 适用于 Spring WebFlux 响应式应用
+ * 
+ * <p>支持定制模块通过实现 {@link PermitAllPathProvider} 接口注册需要放行的路径</p>
  */
+@Slf4j
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -30,15 +37,25 @@ public class SecurityConfig {
 
     private final TokenReactiveAuthenticationManager authenticationManager;
     private final TokenAuthenticationConverter authenticationConverter;
+    private final List<PermitAllPathProvider> permitAllPathProviders;
 
-    public SecurityConfig(TokenReactiveAuthenticationManager authenticationManager) {
+    public SecurityConfig(
+            TokenReactiveAuthenticationManager authenticationManager,
+            List<PermitAllPathProvider> permitAllPathProviders) {
         this.authenticationManager = authenticationManager;
         this.authenticationConverter = new TokenAuthenticationConverter();
+        // 如果定制模块没有实现 PermitAllPathProvider，Spring 会注入空列表
+        this.permitAllPathProviders = permitAllPathProviders != null ? permitAllPathProviders : new ArrayList<>();
     }
 
     /**
      * 配置安全过滤器链
      * 定义哪些路径需要认证，哪些路径可以匿名访问
+     * 
+     * 路径收集逻辑：
+     * - 系统模块路径：通过 backend-system 模块的 ModuleInitialization 实现 PermitAllPathProvider 注册
+     * - 定制模块路径：通过定制模块实现 PermitAllPathProvider 接口注册
+     * - 自动去重：多个模块注册相同路径时自动去重
      *
      * @param http ServerHttpSecurity 实例
      * @return SecurityWebFilterChain
@@ -49,7 +66,16 @@ public class SecurityConfig {
         AuthenticationWebFilter authenticationWebFilter = new AuthenticationWebFilter(authenticationManager);
         authenticationWebFilter.setServerAuthenticationConverter(authenticationConverter);
 
-        return http
+        // 收集所有需要放行的路径
+        List<String> allPermitAllPaths = collectPermitAllPaths();
+        
+        // 记录所有注册的路径（用于调试）
+        if (log.isInfoEnabled() && !allPermitAllPaths.isEmpty()) {
+            log.info("注册的匿名访问路径: {}", allPermitAllPaths);
+        }
+
+        // 配置基础安全设置
+        ServerHttpSecurity httpSecurity = http
                 // 禁用 CSRF（跨站请求伪造）保护
                 // 注意：在生产环境中，如果使用 JWT 等 token 认证，可以考虑禁用 CSRF
                 // 如果使用 session 认证，建议启用 CSRF 保护
@@ -72,25 +98,53 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint())
                         // 注意：RoleCheckWebFilter已经处理了403错误，这里配置的accessDeniedHandler
                         // 主要用于Spring Security层面的权限校验失败（当前未使用）
-                )
-                
-                // 配置请求授权规则
-                .authorizeExchange(exchanges -> exchanges
-                        // 允许 OPTIONS 请求（CORS 预检请求）
-                        .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        
-                        // 允许匿名访问的路径
-                        .pathMatchers(
-                                "/api/login",       // 登录接口
-                                "/api/register"     // 注册接口
-                        ).permitAll()
-                        
-                        // 其他所有请求都需要认证
-                        .anyExchange().authenticated()
-                )
-                
-                // 构建安全过滤器链
-                .build();
+                );
+        
+        // 配置请求授权规则
+        // authorizeExchange 接受一个 Consumer，不需要返回值
+        httpSecurity.authorizeExchange(exchanges -> {
+            // 允许 OPTIONS 请求（CORS 预检请求）
+            ServerHttpSecurity.AuthorizeExchangeSpec spec = exchanges
+                    .pathMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
+            
+            // 配置所有模块注册的路径（系统模块和定制模块）
+            if (!allPermitAllPaths.isEmpty()) {
+                spec = spec.pathMatchers(allPermitAllPaths.toArray(new String[0])).permitAll();
+            }
+            
+            // 其他所有请求都需要认证
+            spec.anyExchange().authenticated();
+        });
+        
+        return httpSecurity.build();
+    }
+    
+    /**
+     * 收集所有需要放行的路径
+     * 从所有 PermitAllPathProvider 实现中收集路径（包括系统模块和定制模块）
+     * 
+     * @return 去重后的路径列表
+     */
+    private List<String> collectPermitAllPaths() {
+        // 收集所有模块（系统模块和定制模块）注册的路径
+        List<String> allPaths = permitAllPathProviders.stream()
+                .flatMap(provider -> {
+                    try {
+                        List<String> paths = provider.getPermitAllPaths();
+                        if (paths == null) {
+                            log.warn("PermitAllPathProvider {} 返回了 null，已忽略", provider.getClass().getName());
+                            return java.util.stream.Stream.<String>empty();
+                        }
+                        return paths.stream();
+                    } catch (Exception e) {
+                        log.error("获取 PermitAllPathProvider {} 的路径时发生错误", provider.getClass().getName(), e);
+                        return java.util.stream.Stream.<String>empty();
+                    }
+                })
+                .distinct()  // 去重
+                .collect(Collectors.toList());
+        
+        return allPaths;
     }
 
     /**
