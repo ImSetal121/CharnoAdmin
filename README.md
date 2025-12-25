@@ -6,6 +6,10 @@
 
 Charno Admin 是一个**上游仓库**，维护系统核心模块，提供稳定的基础功能。下游仓库可以基于此仓库进行业务定制开发，通过新建独立模块实现定制功能，而无需修改核心模块。
 
+### 在线演示
+
+🌐 **演示地址**：[https://frontend-admin-panel-shadcn-demo.vercel.app](https://frontend-admin-panel-shadcn-demo.vercel.app)
+
 ### 核心特性
 
 - 🏗️ **模块化架构**：清晰的核心模块划分，便于维护和扩展
