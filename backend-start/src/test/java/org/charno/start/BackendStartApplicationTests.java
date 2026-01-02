@@ -1,21 +1,6 @@
 package org.charno.start;
 
-import org.charno.commonsecurity.util.PasswordUtil;
-import org.charno.systementity.entity.SysRole;
-import org.charno.systementity.entity.SysUser;
-import org.charno.systementity.repository.SysUserRepository;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.data.relational.core.query.Criteria;
-import org.springframework.data.relational.core.query.Query;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
-import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @SpringBootTest(classes = BackendStartApplication.class)
 class BackendStartApplicationTests {

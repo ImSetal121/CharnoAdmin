@@ -2,8 +2,8 @@ package org.charno.system;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.charno.commonsecurity.config.PermitAllPathProvider;
-import org.charno.commonsecurity.util.PasswordUtil;
+import org.charno.common.security.config.PermitAllPathProvider;
+import org.charno.common.security.util.PasswordUtil;
 import org.charno.systementity.entity.SysRole;
 import org.charno.systementity.entity.SysUser;
 import org.charno.systementity.repository.SysRoleRepository;

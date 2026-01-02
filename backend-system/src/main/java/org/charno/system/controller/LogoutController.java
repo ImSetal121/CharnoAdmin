@@ -1,6 +1,6 @@
 package org.charno.system.controller;
 
-import org.charno.commonweb.response.ApiResponse;
+import org.charno.common.web.response.ApiResponse;
 import org.charno.system.service.LogoutService;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;

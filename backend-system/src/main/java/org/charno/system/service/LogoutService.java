@@ -1,6 +1,6 @@
 package org.charno.system.service;
 
-import org.charno.commonsecurity.util.TokenUtil;
+import org.charno.common.security.util.TokenUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 

@@ -1,6 +1,6 @@
 package org.charno.system.service;
 
-import org.charno.commonweb.response.PageResult;
+import org.charno.common.web.response.PageResult;
 import org.charno.systementity.entity.SysConfig;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;

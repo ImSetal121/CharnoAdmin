@@ -76,8 +76,8 @@ package org.charno.custom.wechatcustomer.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.charno.commonwebsocket.manager.WebSocketConnectionManager;
-import org.charno.commonwebsocket.service.WebSocketPushService;
+import manager.org.charno.common.websocket.WebSocketConnectionManager;
+import service.org.charno.common.websocket.WebSocketPushService;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -125,11 +125,11 @@ package org.charno.custom.wechatcustomer.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.charno.commonwebsocket.annotation.WebSocketHandler;
-import org.charno.commonwebsocket.handler.BaseWebSocketHandler;
-import org.charno.commonwebsocket.manager.WebSocketConnectionManager;
-import org.charno.commonwebsocket.service.WebSocketPushService;
-import org.charno.commonsecurity.util.TokenUtil;
+import annotation.org.charno.common.websocket.WebSocketHandler;
+import handler.org.charno.common.websocket.BaseWebSocketHandler;
+import manager.org.charno.common.websocket.WebSocketConnectionManager;
+import service.org.charno.common.websocket.WebSocketPushService;
+import util.org.charno.common.security.TokenUtil;
 import org.charno.systementity.entity.SysUser;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketSession;
@@ -212,7 +212,7 @@ public class WechatMessageWebSocketHandler extends BaseWebSocketHandler {
 ```java
 package org.charno.custom.wechatcustomer.config;
 
-import org.charno.commonsecurity.config.PermitAllPathProvider;
+import config.org.charno.common.security.PermitAllPathProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

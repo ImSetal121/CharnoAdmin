@@ -1,6 +1,6 @@
 package org.charno.system.service;
 
-import org.charno.commonsecurity.util.PasswordUtil;
+import org.charno.common.security.util.PasswordUtil;
 import org.charno.systementity.entity.SysUser;
 import org.charno.systementity.repository.SysUserRepository;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;

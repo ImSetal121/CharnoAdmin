@@ -1,8 +1,8 @@
 package org.charno.system.controller;
 
-import org.charno.commonsecurity.annotation.RequiresRole;
-import org.charno.commonweb.response.ApiResponse;
-import org.charno.commonweb.response.PageResult;
+import org.charno.common.security.annotation.RequiresRole;
+import org.charno.common.web.response.ApiResponse;
+import org.charno.common.web.response.PageResult;
 import org.charno.systementity.entity.SysUser;
 import org.charno.systementity.repository.SysUserRepository;
 import org.charno.system.service.AdminSysUserService;
