@@ -2,8 +2,11 @@ package org.charno.commonwebsocket.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.charno.commonwebsocket.handler.WebSocketHandlerRegistry;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -14,12 +17,20 @@ import java.util.Map;
 /**
  * WebSocket 配置类
  * 配置 WebSocket 处理器映射，注册所有 WebSocket 路径
+ * 
+ * 注意：由于处理器在 ContextRefreshedEvent 时才注册，需要监听该事件并更新映射
  */
 @Slf4j
 @Configuration
-public class WebSocketConfig {
+@DependsOn("webSocketHandlerRegistry")  // 确保在 WebSocketHandlerRegistry 之后创建
+public class WebSocketConfig implements ApplicationListener<ContextRefreshedEvent> {
     
     private final WebSocketHandlerRegistry handlerRegistry;
+    
+    /**
+     * 保存 HandlerMapping 引用，以便在 ContextRefreshedEvent 后更新
+     */
+    private SimpleUrlHandlerMapping handlerMapping;
     
     public WebSocketConfig(WebSocketHandlerRegistry handlerRegistry) {
         this.handlerRegistry = handlerRegistry;
@@ -27,34 +38,58 @@ public class WebSocketConfig {
     
     /**
      * 配置 WebSocket 处理器映射
-     * 从注册表中获取所有处理器，并映射到对应的路径
+     * 初始时创建空的映射，在 ContextRefreshedEvent 后更新
      * 
      * @return HandlerMapping
      */
     @Bean
     public HandlerMapping webSocketHandlerMapping() {
-        Map<String, WebSocketHandler> map = new HashMap<>();
+        // 创建空的映射，稍后在 ContextRefreshedEvent 时更新
+        SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
+        mapping.setUrlMap(new HashMap<>());
+        mapping.setOrder(-1);  // 确保在 HTTP 处理器之前匹配
         
-        // 从注册表获取所有处理器
+        // 保存引用，以便后续更新
+        this.handlerMapping = mapping;
+        
+        log.info("WebSocket HandlerMapping created (will be updated after ContextRefreshedEvent)");
+        
+        return mapping;
+    }
+    
+    /**
+     * 监听 ContextRefreshedEvent，在应用上下文刷新后更新处理器映射
+     * 此时所有带 @WebSocketHandler 注解的处理器已经注册到 WebSocketHandlerRegistry
+     */
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        if (handlerMapping != null) {
+            updateHandlerMapping();
+        }
+    }
+    
+    /**
+     * 更新 HandlerMapping 的 urlMap
+     * 从注册表中获取所有处理器并设置到映射中
+     */
+    private void updateHandlerMapping() {
         Map<String, WebSocketHandler> handlers = handlerRegistry.getHandlers();
         
         if (handlers.isEmpty()) {
-            log.info("No WebSocket handlers registered");
+            log.warn("No WebSocket handlers registered. If you have WebSocket handlers, ensure they are annotated with @WebSocketHandler and are Spring beans.");
         } else {
-            log.info("Registering {} WebSocket handler(s)", handlers.size());
+            log.info("Updating WebSocket HandlerMapping with {} handler(s)", handlers.size());
+            
+            Map<String, WebSocketHandler> urlMap = new HashMap<>();
             handlers.forEach((path, handler) -> {
-                map.put(path, handler);
+                urlMap.put(path, handler);
                 log.info("Registered WebSocket handler: {}", path);
             });
+            
+            // 更新映射
+            handlerMapping.setUrlMap(urlMap);
+            log.info("WebSocket HandlerMapping updated successfully");
         }
-        
-        // 使用 SimpleUrlHandlerMapping 映射路径到处理器
-        // order = -1 确保在 HTTP 处理器之前匹配
-        SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
-        mapping.setUrlMap(map);
-        mapping.setOrder(-1);
-        
-        return mapping;
     }
 }
 

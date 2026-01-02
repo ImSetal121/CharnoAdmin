@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 
@@ -18,6 +19,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@Order(1)  // 确保先执行，注册处理器
 public class WebSocketHandlerRegistry implements ApplicationListener<ContextRefreshedEvent> {
     
     /**
