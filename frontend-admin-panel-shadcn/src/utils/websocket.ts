@@ -47,6 +47,7 @@ export class WebSocketClient {
   private reconnectTimer: number | null = null;
   private reconnectAttempts = 0;
   private subscriptions = new Set<string>();
+  private errorHandled = false; // 标记错误是否已处理，避免重复处理
   
   private options: Required<Pick<WebSocketOptions, 'enableHeartbeat' | 'heartbeatInterval' | 'reconnectInterval' | 'maxReconnectAttempts' | 'autoResubscribe'>> & 
     Pick<WebSocketOptions, 'url' | 'token' | 'onOpen' | 'onClose' | 'onError' | 'onMessage'>;
@@ -76,7 +77,24 @@ export class WebSocketClient {
       return;
     }
 
+    // 清理之前的连接
+    if (this.ws) {
+      try {
+        this.ws.onerror = null;
+        this.ws.onclose = null;
+        this.ws.onopen = null;
+        this.ws.onmessage = null;
+        if (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN) {
+          this.ws.close();
+        }
+      } catch {
+        // 忽略清理错误
+      }
+      this.ws = null;
+    }
+
     this.status = 'connecting';
+    this.errorHandled = false; // 重置错误处理标记
     const url = `${this.options.url}?token=${encodeURIComponent(this.options.token)}`;
     
     try {
@@ -85,8 +103,12 @@ export class WebSocketClient {
     } catch (error) {
       console.error('Failed to create WebSocket:', error);
       this.status = 'error';
+      this.errorHandled = true;
       this.options.onError?.(error as Event);
-      this.scheduleReconnect();
+      // 只有在启用了自动重连时才尝试重连
+      if (this.options.maxReconnectAttempts > 0) {
+        this.scheduleReconnect();
+      }
     }
   }
 
@@ -100,6 +122,7 @@ export class WebSocketClient {
       console.log('WebSocket connected');
       this.status = 'connected';
       this.reconnectAttempts = 0;
+      this.errorHandled = false; // 重置错误处理标记
       
       // 如果启用了自动重新订阅，先重新订阅之前的订阅
       if (this.options.autoResubscribe) {
@@ -141,11 +164,24 @@ export class WebSocketClient {
       }
     };
 
-    this.ws.onclose = () => {
-      console.log('WebSocket disconnected');
+    this.ws.onclose = (event) => {
+      const wasConnected = this.status === 'connected';
+      console.log('WebSocket disconnected', {
+        code: event.code,
+        reason: event.reason,
+        wasClean: event.wasClean,
+        wasConnected
+      });
+      
       this.status = 'disconnected';
       this.stopHeartbeat();
-      this.options.onClose?.();
+      this.errorHandled = false; // 重置错误处理标记
+      
+      // 只有在之前已连接的情况下才调用 onClose
+      // 如果从未连接成功，说明是连接失败，不应该触发 onClose
+      if (wasConnected) {
+        this.options.onClose?.();
+      }
       
       // 尝试重连（不清空订阅记录，保留以便重连后重新订阅）
       if (this.options.maxReconnectAttempts > 0 && this.reconnectAttempts < this.options.maxReconnectAttempts) {
@@ -162,9 +198,42 @@ export class WebSocketClient {
     };
 
     this.ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      this.status = 'error';
-      this.options.onError?.(error);
+      // 避免重复处理错误（onerror 可能在 onclose 之前或之后触发）
+      if (this.errorHandled) {
+        return;
+      }
+      
+      // 检查连接状态，如果已经断开，错误可能已经在 onclose 中处理
+      if (this.ws?.readyState === WebSocket.CLOSED || this.ws?.readyState === WebSocket.CLOSING) {
+        // 连接已关闭或正在关闭，错误会在 onclose 中处理
+        return;
+      }
+      
+      this.errorHandled = true;
+      
+      // 只在开发环境或连接状态为 CONNECTING 时记录详细错误
+      // 如果是已连接状态下的错误，通常会在 onclose 中处理
+      if (this.ws?.readyState === WebSocket.CONNECTING) {
+        console.warn('WebSocket connection error (during connection):', {
+          readyState: this.ws?.readyState,
+          url: this.ws?.url
+        });
+      } else {
+        // 已连接状态下的错误，通常会在 onclose 中处理，这里只记录警告
+        console.warn('WebSocket error (will be handled in onclose):', {
+          readyState: this.ws?.readyState
+        });
+      }
+      
+      // 只有在连接失败时才设置错误状态
+      // 如果已经连接，错误状态会在 onclose 中设置
+      if (this.ws?.readyState === WebSocket.CONNECTING || this.ws?.readyState === WebSocket.CLOSED) {
+        this.status = 'error';
+        // 只在连接失败时触发错误回调，避免重复触发
+        if (this.ws?.readyState === WebSocket.CONNECTING) {
+          this.options.onError?.(error);
+        }
+      }
     };
   }
 
@@ -173,7 +242,7 @@ export class WebSocketClient {
    */
   subscribe(key: string): void {
     if (!this.isConnected()) {
-      console.warn('WebSocket not connected, subscription will be queued');
+      console.warn('WebSocket not connected, subscription will be queued:', key);
       this.subscriptions.add(key);
       return;
     }
@@ -190,9 +259,15 @@ export class WebSocketClient {
       timestamp: new Date().toISOString(),
     };
 
-    this.send(message);
-    this.subscriptions.add(key);
-    console.log('Subscribed to:', key);
+    try {
+      this.send(message);
+      this.subscriptions.add(key);
+      console.log('Subscribed to:', key, 'message sent successfully');
+    } catch (error) {
+      console.error('Failed to subscribe to:', key, error);
+      // 即使发送失败，也记录订阅意图，以便重连后重新订阅
+      this.subscriptions.add(key);
+    }
   }
 
   /**
@@ -296,6 +371,7 @@ export class WebSocketClient {
    */
   disconnect(clearSubscriptions: boolean = true): void {
     this.stopHeartbeat();
+    this.errorHandled = false; // 重置错误处理标记
     
     if (this.reconnectTimer !== null) {
       clearTimeout(this.reconnectTimer);
@@ -408,6 +484,8 @@ export class WebSocketConnectionManager {
   private connectionAttempts = 0;
   private maxConnectionAttempts = 3;
   private isDisconnecting = false; // 标记是否正在主动断开连接
+  private connectionCheckTimer: number | null = null; // 连接健康检查定时器
+  private readonly CONNECTION_CHECK_INTERVAL = 30000; // 30秒检查一次连接状态
 
   constructor(options: WebSocketConnectionManagerOptions, wsPath: string = '/ws/wechat/messages') {
     this.options = options;
@@ -493,30 +571,70 @@ export class WebSocketConnectionManager {
         onOpen: () => {
           console.log('WebSocket connected');
           this.connectionAttempts = 0; // 连接成功，重置尝试次数
-          // 订阅新订阅（不通过 resubscribe，避免重复订阅）
-          if (subscriptionKey && this.client) {
-            this.client.subscribe(subscriptionKey);
-            console.log('Subscribed to:', subscriptionKey);
-          }
           this.currentSubscription = subscriptionKey;
+          
+          // 启动连接健康检查
+          this.startConnectionCheck();
+          
+          // 订阅新订阅（不通过 resubscribe，避免重复订阅）
+          // 使用 setTimeout 确保连接状态完全就绪后再订阅
+          if (subscriptionKey && this.client) {
+            setTimeout(() => {
+              if (this.client && this.client.isConnected()) {
+                this.client.subscribe(subscriptionKey);
+                console.log('Subscribed to:', subscriptionKey);
+              } else {
+                console.warn('WebSocket not connected when trying to subscribe, retrying...');
+                // 如果连接未就绪，稍后重试
+                setTimeout(() => {
+                  if (this.client && this.client.isConnected() && this.currentSubscription === subscriptionKey) {
+                    this.client.subscribe(subscriptionKey);
+                    console.log('Subscribed to (retry):', subscriptionKey);
+                  }
+                }, 200);
+              }
+            }, 100);
+          }
+          
           this.options.onOpen?.();
         },
         onClose: () => {
           console.log('WebSocket disconnected');
+          // 停止连接健康检查
+          this.stopConnectionCheck();
+          
           // 如果连接意外断开且不是手动断开，尝试重新连接
           // 检查：1. 不是主动断开 2. 当前订阅仍然是这个订阅 3. 还有重试次数
           if (!this.isDisconnecting && 
-              this.currentSubscription === subscriptionKey && 
-              this.connectionAttempts < this.maxConnectionAttempts) {
-            console.log(`Connection lost, attempting to reconnect (${this.connectionAttempts}/${this.maxConnectionAttempts})...`);
-            setTimeout(() => {
-              // 再次检查：确保订阅没有改变，且没有新的客户端
-              if (!this.isDisconnecting && 
-                  this.currentSubscription === subscriptionKey && 
-                  !this.client) {
-                createConnection();
-              }
-            }, 1000);
+              this.currentSubscription === subscriptionKey) {
+            // 重置连接尝试次数，允许无限重试（只要订阅还在）
+            if (this.connectionAttempts >= this.maxConnectionAttempts) {
+              console.log('Resetting connection attempts for persistent reconnection');
+              this.connectionAttempts = 0;
+            }
+            
+            if (this.connectionAttempts < this.maxConnectionAttempts) {
+              console.log(`Connection lost, attempting to reconnect (${this.connectionAttempts}/${this.maxConnectionAttempts})...`);
+              setTimeout(() => {
+                // 再次检查：确保订阅没有改变，且没有新的客户端
+                if (!this.isDisconnecting && 
+                    this.currentSubscription === subscriptionKey && 
+                    !this.client) {
+                  createConnection();
+                }
+              }, 1000);
+            } else {
+              // 如果达到最大重试次数，等待更长时间后重试
+              console.log('Max reconnection attempts reached, will retry after longer interval');
+              setTimeout(() => {
+                if (!this.isDisconnecting && 
+                    this.currentSubscription === subscriptionKey && 
+                    !this.client) {
+                  this.connectionAttempts = 0; // 重置尝试次数
+                  createConnection();
+                }
+              }, 10000); // 等待10秒后重试
+            }
           } else {
             // 注意：不要在这里清空 currentSubscription，因为可能是手动断开
             // currentSubscription 的清空应该在 disconnect() 方法中处理
@@ -559,10 +677,42 @@ export class WebSocketConnectionManager {
   }
 
   /**
+   * 启动连接健康检查
+   * 定期检查连接状态，如果断开则自动重连
+   */
+  private startConnectionCheck(): void {
+    this.stopConnectionCheck();
+    
+    this.connectionCheckTimer = window.setInterval(() => {
+      // 如果有当前订阅但连接已断开，尝试重连
+      if (this.currentSubscription && 
+          (!this.client || !this.client.isConnected()) && 
+          !this.isDisconnecting) {
+        console.log('Connection check: connection lost, attempting to reconnect...');
+        const subscriptionKey = this.currentSubscription;
+        // 重置连接尝试次数，允许重连
+        this.connectionAttempts = 0;
+        this.connectToSubscription(subscriptionKey);
+      }
+    }, this.CONNECTION_CHECK_INTERVAL);
+  }
+
+  /**
+   * 停止连接健康检查
+   */
+  private stopConnectionCheck(): void {
+    if (this.connectionCheckTimer !== null) {
+      clearInterval(this.connectionCheckTimer);
+      this.connectionCheckTimer = null;
+    }
+  }
+
+  /**
    * 断开连接
    */
   disconnect(): void {
-    this.isDisconnecting = true; // 标记正在主动断开
+    this.isDisconnecting = true;
+    this.stopConnectionCheck(); // 标记正在主动断开
     if (this.client) {
       this.client.disconnect();
       this.client = null;
@@ -583,6 +733,41 @@ export class WebSocketConnectionManager {
    */
   getCurrentSubscription(): string | null {
     return this.currentSubscription;
+  }
+
+  /**
+   * 确保连接和订阅
+   * 如果连接断开或未订阅，自动重连并订阅
+   */
+  ensureConnected(subscriptionKey: string): void {
+    if (!subscriptionKey) {
+      console.warn('ensureConnected: subscriptionKey is required');
+      return;
+    }
+
+    // 如果没有连接或连接已断开，重新连接
+    if (!this.client || !this.client.isConnected()) {
+      console.log('ensureConnected: connection lost, reconnecting...');
+      this.connectionAttempts = 0; // 重置尝试次数
+      this.connectToSubscription(subscriptionKey);
+      return;
+    }
+
+    // 如果订阅不匹配，重新订阅
+    if (this.currentSubscription !== subscriptionKey) {
+      console.log(`ensureConnected: subscription mismatch (current: ${this.currentSubscription}, expected: ${subscriptionKey}), resubscribing...`);
+      this.currentSubscription = subscriptionKey;
+      if (this.client) {
+        this.client.subscribe(subscriptionKey);
+      }
+      return;
+    }
+
+    // 检查是否已订阅
+    // 注意：WebSocketClient 的订阅状态是内部的，我们只能通过尝试订阅来确保
+    if (this.client) {
+      this.client.subscribe(subscriptionKey);
+    }
   }
 
   /**
