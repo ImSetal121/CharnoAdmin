@@ -31,8 +31,11 @@ public class WebSocketHandlerRegistry implements ApplicationListener<ContextRefr
     
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        this.applicationContext = event.getApplicationContext();
-        registerHandlers();
+        // 只处理根上下文的事件，避免在父子上下文场景下重复处理
+        if (event.getApplicationContext().getParent() == null) {
+            this.applicationContext = event.getApplicationContext();
+            registerHandlers();
+        }
     }
     
     /**

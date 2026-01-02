@@ -3,10 +3,10 @@ package org.charno.commonwebsocket.config;
 import lombok.extern.slf4j.Slf4j;
 import org.charno.commonwebsocket.handler.WebSocketHandlerRegistry;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -60,10 +60,13 @@ public class WebSocketConfig implements ApplicationListener<ContextRefreshedEven
     /**
      * 监听 ContextRefreshedEvent，在应用上下文刷新后更新处理器映射
      * 此时所有带 @WebSocketHandler 注解的处理器已经注册到 WebSocketHandlerRegistry
+     * 
+     * 注意：只处理根上下文的事件，避免在父子上下文场景下重复处理
      */
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (handlerMapping != null) {
+        // 只处理根上下文的事件，避免在父子上下文场景下重复处理
+        if (event.getApplicationContext().getParent() == null && handlerMapping != null) {
             updateHandlerMapping();
         }
     }
@@ -86,9 +89,15 @@ public class WebSocketConfig implements ApplicationListener<ContextRefreshedEven
                 log.info("Registered WebSocket handler: {}", path);
             });
             
-            // 更新映射
+            // 更新映射并重新初始化
             handlerMapping.setUrlMap(urlMap);
-            log.info("WebSocket HandlerMapping updated successfully");
+            // 重新初始化 HandlerMapping 以确保映射生效
+            try {
+                handlerMapping.initApplicationContext();
+                log.info("WebSocket HandlerMapping updated and reinitialized successfully");
+            } catch (Exception e) {
+                log.error("Failed to reinitialize WebSocket HandlerMapping", e);
+            }
         }
     }
 }
