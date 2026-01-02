@@ -57,7 +57,9 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from '@/components/ui/pagination';
+import { getPaginationPages } from '@/utils/pagination';
 import type { SysRole, RolePageQueryParams } from '@/types';
 import {
   queryRolesWithPage,
@@ -370,7 +372,7 @@ export default function RolesPage() {
           </div>
 
           {/* 分页 */}
-          <div className="mt-4 grid grid-cols-3 items-center gap-4">
+          <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 whitespace-nowrap">
               <Label htmlFor="page-size-select" className="text-sm">
                 每页显示：
@@ -396,22 +398,24 @@ export default function RolesPage() {
                 共 {total} 条记录
               </span>
             </div>
-            <div className="flex justify-center">
-              {totalPages > 1 && (
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (currentPage > 1) setCurrentPage(currentPage - 1);
-                        }}
-                        className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                      />
-                    </PaginationItem>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <PaginationItem key={page}>
+            {totalPages > 1 && (
+              <Pagination className="sm:mx-0 sm:w-auto sm:justify-end">
+                <PaginationContent className="flex-wrap">
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
+                      }}
+                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                  {getPaginationPages(currentPage, totalPages, 3).map((page, index) => (
+                    <PaginationItem key={page === 'ellipsis' ? `ellipsis-${index}` : page}>
+                      {page === 'ellipsis' ? (
+                        <PaginationEllipsis />
+                      ) : (
                         <PaginationLink
                           href="#"
                           onClick={(e) => {
@@ -422,23 +426,22 @@ export default function RolesPage() {
                         >
                           {page}
                         </PaginationLink>
-                      </PaginationItem>
-                    ))}
-                    <PaginationItem>
-                      <PaginationNext
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                        }}
-                        className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                      />
+                      )}
                     </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
-            </div>
-            <div></div>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                      }}
+                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
           </div>
         </CardContent>
       </Card>
