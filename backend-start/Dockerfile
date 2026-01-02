@@ -9,6 +9,7 @@ COPY pom.xml .
 COPY backend-common-redis/pom.xml ./backend-common-redis/
 COPY backend-common-security/pom.xml ./backend-common-security/
 COPY backend-common-web/pom.xml ./backend-common-web/
+COPY backend-common-websocket/pom.xml ./backend-common-websocket/
 COPY backend-start/pom.xml ./backend-start/
 COPY backend-system/pom.xml ./backend-system/
 COPY backend-system-entity/pom.xml ./backend-system-entity/
@@ -20,6 +21,7 @@ RUN mvn dependency:go-offline -B
 COPY backend-common-redis/src ./backend-common-redis/src
 COPY backend-common-security/src ./backend-common-security/src
 COPY backend-common-web/src ./backend-common-web/src
+COPY backend-common-websocket/src ./backend-common-websocket/src
 COPY backend-start/src ./backend-start/src
 COPY backend-system/src ./backend-system/src
 COPY backend-system-entity/src ./backend-system-entity/src

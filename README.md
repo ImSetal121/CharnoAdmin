@@ -18,6 +18,7 @@ Charno Admin 是一个**上游仓库**，维护系统核心模块，提供稳定
 - 🎨 **现代化前端**：React 19 + Vite + shadcn/ui + Tailwind CSS
 - 📦 **上下游模式**：支持核心模块统一维护，定制模块独立开发
 - 🐳 **容器化部署**：完整的 Docker 支持
+- 🔌 **WebSocket 支持**：提供 WebSocket 基础设施，支持实时消息推送
 
 ## 🏗️ 项目架构
 
@@ -30,6 +31,7 @@ Charno Admin 是一个**上游仓库**，维护系统核心模块，提供稳定
 | `backend-common-redis` | Redis 通用模块，提供缓存功能 |
 | `backend-common-security` | 安全认证模块，提供身份验证和权限管理 |
 | `backend-common-web` | Web 通用模块，提供统一的响应格式和异常处理 |
+| `backend-common-websocket` | WebSocket 通用模块，提供 WebSocket 基础设施和连接管理 |
 | `backend-start` | 启动模块，应用入口和配置 |
 | `backend-system` | 系统业务模块，提供系统管理功能 |
 | `backend-system-entity` | 系统实体模块，定义系统核心实体类 |
@@ -47,6 +49,7 @@ CharnoAdmin/
 ├── backend-common-redis/          # Redis 通用模块
 ├── backend-common-security/       # 安全认证模块
 ├── backend-common-web/            # Web 通用模块
+├── backend-common-websocket/      # WebSocket 通用模块
 ├── backend-start/                 # 启动模块
 ├── backend-system/                # 系统业务模块
 ├── backend-system-entity/         # 系统实体模块
@@ -58,7 +61,10 @@ CharnoAdmin/
 │   ├── 持久层规范.md
 │   ├── 前端API规范.md
 │   ├── 前端管理页面规范.md
-│   └── 身份验证设计.md
+│   ├── 身份验证设计.md
+│   ├── 模块注册放行接口规范.md
+│   ├── 启动模块规范.md
+│   └── WebSocket组件使用规范.md
 ├── docker-compose.yml              # Docker Compose 配置
 └── pom.xml                         # Maven 父级 POM
 ```
@@ -151,6 +157,7 @@ pnpm dev
 - **[身份验证设计](./prompt/身份验证设计.md)**：身份验证系统设计文档，包含认证流程和权限控制
 - **[模块注册放行接口规范](./prompt/模块注册放行接口规范.md)**：模块注册放行路径规范，说明如何使用 PermitAllPathProvider 接口
 - **[启动模块规范](./prompt/启动模块规范.md)**：启动模块开发规范，说明如何实现 ModuleInitialization 进行模块初始化
+- **[WebSocket组件使用规范](./prompt/WebSocket组件使用规范.md)**：WebSocket 组件使用规范，包含连接管理、消息推送、认证机制等
 
 > 💡 **提示**：这些规范文档可作为 AI Agent、代码生成工具、IDE 插件等自动化工具的提示词（Prompt），帮助工具理解项目架构和开发规范，生成符合项目标准的代码。
 
@@ -226,6 +233,15 @@ Web 通用模块，提供：
 - 统一响应格式
 - 全局异常处理
 - 请求响应拦截
+
+### backend-common-websocket
+
+WebSocket 通用模块，提供：
+- WebSocket 基础设施和配置
+- 连接管理和订阅管理
+- Token 认证支持
+- 消息推送服务接口
+- 心跳机制支持
 
 ### backend-start
 

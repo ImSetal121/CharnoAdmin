@@ -111,6 +111,7 @@
         <module>backend-common-redis</module>
         <module>backend-common-web</module>
         <module>backend-common-security</module>
+        <module>backend-common-websocket</module>
         <module>backend-system</module>
         <module>backend-system-entity</module>
     </modules>
