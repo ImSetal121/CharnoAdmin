@@ -392,7 +392,152 @@ protected boolean enableHeartbeat() {
 
 ## 前端集成
 
-### WebSocket 连接
+### 推荐方式：使用 WebSocketClient 工具类
+
+项目提供了 `WebSocketClient` 工具类（位于 `src/utils/websocket.ts`），封装了 WebSocket 连接、订阅、心跳、重连等功能，推荐使用。
+
+#### 基本使用
+
+```typescript
+import { WebSocketClient } from '@/utils/websocket';
+
+// 创建 WebSocket 客户端实例
+const wsClient = new WebSocketClient({
+  url: 'ws://localhost:8080/ws/wechat/messages',
+  token: localStorage.getItem('token') || '',
+  enableHeartbeat: true,  // 默认启用，每30秒发送心跳
+  heartbeatInterval: 30000,  // 心跳间隔（毫秒）
+  reconnectInterval: 3000,  // 重连间隔（毫秒）
+  maxReconnectAttempts: 5,  // 最大重连次数
+  onOpen: () => {
+    console.log('WebSocket 连接成功');
+    
+    // 连接成功后订阅消息
+    wsClient.subscribe('user_externalUserid123');
+  },
+  onMessage: (message) => {
+    if (message.type === 'MESSAGE') {
+      // 处理业务消息
+      console.log('收到消息:', message.data);
+    } else if (message.type === 'ERROR') {
+      // 处理错误
+      console.error('错误:', message.error);
+    }
+  },
+  onClose: () => {
+    console.log('WebSocket 连接关闭');
+  },
+  onError: (error) => {
+    console.error('WebSocket 错误:', error);
+  },
+});
+
+// 连接 WebSocket
+wsClient.connect();
+
+// 订阅消息
+wsClient.subscribe('user_externalUserid123');
+
+// 取消订阅
+wsClient.unsubscribe('user_externalUserid123');
+
+// 检查连接状态
+if (wsClient.isConnected()) {
+  console.log('WebSocket 已连接');
+}
+
+// 获取连接状态
+const status = wsClient.getStatus(); // 'connecting' | 'connected' | 'disconnected' | 'error'
+
+// 获取所有订阅
+const subscriptions = wsClient.getSubscriptions();
+
+// 断开连接
+wsClient.disconnect();
+```
+
+#### React 组件中使用示例
+
+```typescript
+import { useEffect, useRef } from 'react';
+import { WebSocketClient } from '@/utils/websocket';
+
+function MessageList() {
+  const wsClientRef = useRef<WebSocketClient | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    // 创建 WebSocket 客户端
+    wsClientRef.current = new WebSocketClient({
+      url: 'ws://localhost:8080/ws/wechat/messages',
+      token,
+      onMessage: (message) => {
+        if (message.type === 'MESSAGE') {
+          // 处理业务消息，更新 UI
+          console.log('收到新消息:', message.data);
+        }
+      },
+      onError: (error) => {
+        console.error('WebSocket 错误:', error);
+      },
+    });
+
+    // 连接并订阅
+    wsClientRef.current.connect();
+    wsClientRef.current.subscribe('user_externalUserid123');
+
+    // 清理：断开连接
+    return () => {
+      wsClientRef.current?.disconnect();
+    };
+  }, []);
+
+  return <div>消息列表</div>;
+}
+```
+
+#### WebSocketClient API
+
+**构造函数选项：**
+
+| 选项 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| `url` | `string` | ✅ | - | WebSocket URL（不包含 token） |
+| `token` | `string` | ✅ | - | 认证 Token |
+| `onOpen` | `() => void` | ❌ | - | 连接成功回调 |
+| `onClose` | `() => void` | ❌ | - | 连接关闭回调 |
+| `onError` | `(error: Event) => void` | ❌ | - | 错误回调 |
+| `onMessage` | `(message: WebSocketMessage) => void` | ❌ | - | 消息回调 |
+| `enableHeartbeat` | `boolean` | ❌ | `true` | 是否启用心跳 |
+| `heartbeatInterval` | `number` | ❌ | `30000` | 心跳间隔（毫秒） |
+| `reconnectInterval` | `number` | ❌ | `3000` | 重连间隔（毫秒） |
+| `maxReconnectAttempts` | `number` | ❌ | `5` | 最大重连次数 |
+
+**方法：**
+
+| 方法 | 说明 |
+|------|------|
+| `connect()` | 连接 WebSocket |
+| `disconnect()` | 断开连接 |
+| `subscribe(key: string)` | 订阅消息（key 为订阅键） |
+| `unsubscribe(key: string)` | 取消订阅 |
+| `isConnected()` | 检查是否已连接 |
+| `getStatus()` | 获取连接状态 |
+| `getSubscriptions()` | 获取所有订阅键 |
+
+**特性：**
+
+- ✅ **自动重连**：连接断开后自动重连，最多重试 5 次
+- ✅ **自动心跳**：默认每 30 秒发送心跳，保持连接活跃
+- ✅ **订阅管理**：自动管理订阅关系，重连后自动重新订阅
+- ✅ **状态管理**：提供连接状态查询
+- ✅ **错误处理**：统一的错误处理机制
+
+### 原生 WebSocket 使用方式（不推荐）
+
+如果需要使用原生 WebSocket API，可以参考以下示例：
 
 ```typescript
 // 连接 WebSocket（需要传递 Token）
@@ -432,12 +577,8 @@ ws.onclose = () => {
 ws.onerror = (error) => {
     console.error('WebSocket 错误:', error);
 };
-```
 
-### 心跳处理
-
-```typescript
-// 定期发送心跳
+// 心跳处理（需要手动实现）
 const heartbeatInterval = setInterval(() => {
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
@@ -452,6 +593,8 @@ ws.onclose = () => {
     clearInterval(heartbeatInterval);
 };
 ```
+
+**注意：** 使用原生 WebSocket 需要手动实现重连、心跳、订阅管理等功能，建议使用 `WebSocketClient` 工具类。
 
 ## 注意事项
 
@@ -585,6 +728,19 @@ ws.onclose = () => {
 - 客户端可以发送多个 `SUBSCRIBE` 消息，订阅不同的订阅键
 - 每个订阅键都会在连接管理器中维护独立的订阅关系
 - 推送消息时，指定对应的订阅键即可
+- 使用 `WebSocketClient` 工具类时，可以多次调用 `subscribe()` 方法订阅不同的键
+
+### Q7: 前端应该使用 WebSocketClient 工具类还是原生 WebSocket？
+
+**A:** 
+- **推荐使用 `WebSocketClient` 工具类**，它提供了以下优势：
+  - ✅ 自动重连机制
+  - ✅ 自动心跳保持连接
+  - ✅ 自动重新订阅（重连后）
+  - ✅ 统一的状态管理
+  - ✅ 统一的错误处理
+  - ✅ 更简洁的 API
+- 如果项目已有原生 WebSocket 实现，可以继续使用，但需要手动实现上述功能
 
 ## 优势
 
